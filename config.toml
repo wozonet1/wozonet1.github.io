@@ -1,4 +1,4 @@
-baseURL = "https://www.wozonet.top"
+baseURL = "http://wozonet1.github.io/"
 title = "This ought to be my website"
 
 theme = "fuji"
