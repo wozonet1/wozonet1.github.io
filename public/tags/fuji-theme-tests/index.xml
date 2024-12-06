@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Fuji Theme Tests on This ought to be my website</title>
-    <link>http://localhost:1313/tags/fuji-theme-tests/</link>
+    <link>https://www.wozonet.top/tags/fuji-theme-tests/</link>
     <description>Recent content in Fuji Theme Tests on This ought to be my website</description>
     <generator>Hugo</generator>
     <language>zh</language>
     <lastBuildDate>Wed, 21 Dec 2016 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/fuji-theme-tests/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://www.wozonet.top/tags/fuji-theme-tests/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Post-Meta Test with Lots of Tags</title>
-      <link>http://localhost:1313/post/post-meta-test/</link>
+      <link>https://www.wozonet.top/post/post-meta-test/</link>
       <pubDate>Wed, 21 Dec 2016 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/post/post-meta-test/</guid>
+      <guid>https://www.wozonet.top/post/post-meta-test/</guid>
       <description>&lt;p&gt;&lt;strong&gt;The tags should wrap and not make a horizontal scroll bar appear.&lt;/strong&gt; Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&lt;/p&gt;</description>
     </item>
   </channel>
