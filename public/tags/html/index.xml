@@ -2,24 +2,24 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Html on This ought to be my website</title>
-    <link>https://www.wozonet.top/tags/html/</link>
+    <link>http://wozonet1.github.io/tags/html/</link>
     <description>Recent content in Html on This ought to be my website</description>
     <generator>Hugo</generator>
     <language>zh</language>
     <lastBuildDate>Mon, 11 May 2020 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://www.wozonet.top/tags/html/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://wozonet1.github.io/tags/html/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Markdown Syntax</title>
-      <link>https://www.wozonet.top/post/markdown-syntax/</link>
+      <link>http://wozonet1.github.io/post/markdown-syntax/</link>
       <pubDate>Mon, 11 May 2020 00:00:00 +0000</pubDate>
-      <guid>https://www.wozonet.top/post/markdown-syntax/</guid>
+      <guid>http://wozonet1.github.io/post/markdown-syntax/</guid>
       <description>&lt;p&gt;This article offers a sample of basic Markdown syntax that can be used in Hugo content files, also it shows whether basic HTML elements are decorated with CSS in a Hugo theme.&lt;/p&gt;&#xA;&lt;h2 id=&#34;headings&#34;&gt;Headings&lt;/h2&gt;&#xA;&lt;p&gt;The following HTML &lt;code&gt;&amp;lt;h1&amp;gt;&lt;/code&gt;—&lt;code&gt;&amp;lt;h6&amp;gt;&lt;/code&gt; elements represent six levels of section headings. &lt;code&gt;&amp;lt;h1&amp;gt;&lt;/code&gt; is the highest section level while &lt;code&gt;&amp;lt;h6&amp;gt;&lt;/code&gt; is the lowest.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Post-Meta Test with Lots of Tags</title>
-      <link>https://www.wozonet.top/post/post-meta-test/</link>
+      <link>http://wozonet1.github.io/post/post-meta-test/</link>
       <pubDate>Wed, 21 Dec 2016 00:00:00 +0000</pubDate>
-      <guid>https://www.wozonet.top/post/post-meta-test/</guid>
+      <guid>http://wozonet1.github.io/post/post-meta-test/</guid>
       <description>&lt;p&gt;&lt;strong&gt;The tags should wrap and not make a horizontal scroll bar appear.&lt;/strong&gt; Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&lt;/p&gt;</description>
     </item>
   </channel>
