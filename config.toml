@@ -31,7 +31,7 @@ home = ["HTML", "RSS", "SearchIndex"]
 post = "/:section/:filename/" # Custom post links, e.g. "/:year/:month/:title/"
 
 [params]
-author = "DSRKafuU"                # You can also set author in post front matter individually
+author = "wozonet"                # You can also set author in post front matter individually
 subTitle = "A minimal Hugo theme."
 defaultTheme = "auto"              # default theme when first visit (auto|dark|light)
 
