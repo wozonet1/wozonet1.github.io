@@ -4,3 +4,6 @@
 [submodule "themes/fuji"]
 	path = themes/fuji
 	url = https://github.com/dsrkafuu/hugo-theme-fuji.git
+[submodule "themes/lovelt"]
+	path = themes/lovelt
+	url = https://github.com/dillonzq/LoveIt.git
