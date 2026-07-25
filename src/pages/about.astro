@@ -1,0 +1,67 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="关于" description="关于这个网站及其收录的内容。">
+  <section class="about shell">
+    <div>
+      <p class="eyebrow">About this place</p>
+      <h1>这里首先是一个<br />保存想法的地方。</h1>
+    </div>
+    <div class="about-copy">
+      <p>
+        网站计划收录长篇随笔、审美分析、图片案例和项目记录。它不承担社交媒体式的持续更新压力，
+        也不试图把仍在形成的判断提前包装成完成的体系。
+      </p>
+      <p>
+        内容在本地以 Markdown 保存，网站只是它们的阅读界面。视觉和交互会逐渐变化，但文章数据不依赖某个后台。
+      </p>
+      <hr />
+      <p class="muted">
+        当前页面是第一版结构说明，之后可以替换为正式的个人介绍、项目入口和联系方式。
+      </p>
+      <a href="https://github.com/wozonet1">GitHub ↗</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(3rem, 10vw, 9rem);
+    padding-block: clamp(5rem, 10vw, 9rem);
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 500;
+    letter-spacing: -0.05em;
+    line-height: 1.08;
+  }
+
+  .about-copy {
+    align-self: end;
+    color: var(--text-soft);
+    font-family: var(--serif);
+    font-size: 1.05rem;
+  }
+
+  hr {
+    margin-block: 2rem;
+    border: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .about-copy a {
+    color: var(--accent);
+  }
+
+  @media (max-width: 48rem) {
+    .about {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

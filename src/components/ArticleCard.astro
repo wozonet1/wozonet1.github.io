@@ -1,0 +1,115 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  post: CollectionEntry<"posts">;
+  index?: number;
+}
+
+const { post, index = 0 } = Astro.props;
+const date = post.data.pubDate.toLocaleDateString("zh-CN", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<article class="article-card" style={`--delay: ${Math.min(index * 70, 280)}ms`}>
+  <div class="card-meta">
+    <time datetime={post.data.pubDate.toISOString()}>{date}</time>
+    <span>{post.data.tags[0] ?? "随笔"}</span>
+  </div>
+  <h2><a href={`/posts/${post.id}/`}>{post.data.title}</a></h2>
+  <p>{post.data.description}</p>
+  <div class="card-foot">
+    <div class="tag-list">
+      {post.data.tags.slice(0, 3).map((tag) => <span>#{tag}</span>)}
+    </div>
+    <a class="read-link" href={`/posts/${post.id}/`} aria-label={`阅读《${post.data.title}》`}>
+      阅读 <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+</article>
+
+<style>
+  .article-card {
+    display: grid;
+    min-height: 16rem;
+    padding: clamp(1.3rem, 3vw, 2rem);
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    background:
+      linear-gradient(135deg, var(--accent-soft), transparent 46%),
+      var(--surface);
+    box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.1);
+    animation: card-in 500ms both;
+    animation-delay: var(--delay);
+    transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
+  }
+
+  .article-card:hover {
+    transform: translateY(-0.3rem);
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  }
+
+  .card-meta,
+  .card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .card-meta {
+    align-self: start;
+    color: var(--text-soft);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+  }
+
+  h2 {
+    margin: 2rem 0 0.7rem;
+    font-family: var(--serif);
+    font-size: clamp(1.35rem, 3vw, 2rem);
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  h2 a,
+  .read-link {
+    text-decoration: none;
+  }
+
+  p {
+    align-self: start;
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 0.9rem;
+  }
+
+  .card-foot {
+    align-self: end;
+    margin-top: 2rem;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    color: var(--text-soft);
+    font-size: 0.68rem;
+  }
+
+  .read-link {
+    white-space: nowrap;
+    color: var(--accent);
+    font-size: 0.76rem;
+  }
+
+  @keyframes card-in {
+    from {
+      transform: translateY(0.8rem);
+      opacity: 0;
+    }
+  }
+</style>

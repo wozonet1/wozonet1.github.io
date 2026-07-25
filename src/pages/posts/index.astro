@@ -1,0 +1,53 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArticleCard from "../../components/ArticleCard.astro";
+
+const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+
+<BaseLayout title="文章" description="全部散文、审美分析与项目记录。">
+  <header class="page-header shell">
+    <p class="eyebrow">Writing archive</p>
+    <h1>文章</h1>
+    <p>按照写作时间保留，不强行整理成一套完成的体系。</p>
+  </header>
+  <div class="post-list shell">
+    {posts.map((post, index) => <ArticleCard post={post} index={index} />)}
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    padding-block: 6rem 3rem;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(3.5rem, 9vw, 7rem);
+    font-weight: 500;
+    letter-spacing: -0.06em;
+    line-height: 1;
+  }
+
+  .page-header > p:last-child {
+    max-width: 34rem;
+    color: var(--text-soft);
+  }
+
+  .post-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    padding-bottom: 7rem;
+  }
+
+  @media (max-width: 48rem) {
+    .post-list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

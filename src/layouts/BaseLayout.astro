@@ -1,0 +1,83 @@
+---
+import "katex/dist/katex.min.css";
+import "../styles/global.css";
+import SiteHeader from "../components/SiteHeader.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const {
+  title = "Wozonet",
+  description = "散文、审美分析与仍在形成的项目。",
+  image,
+} = Astro.props;
+const pageTitle = title === "Wozonet" ? title : `${title} · Wozonet`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const socialImage = image ? new URL(image, Astro.site) : undefined;
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+    <title>{pageTitle}</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {socialImage && <meta property="og:image" content={socialImage} />}
+    <script is:inline>
+      (() => {
+        const saved = localStorage.getItem("theme");
+        document.documentElement.dataset.theme = saved === "light" ? "light" : "dark";
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳到正文</a>
+    <SiteHeader />
+    <main id="main-content" class="site-main">
+      <slot />
+    </main>
+    <footer class="site-footer shell">
+      <span>© {new Date().getFullYear()} Wozonet</span>
+      <span>内容由作者保有，站点由 Astro 生成。</span>
+    </footer>
+    <script>
+      const toggle = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+      toggle?.addEventListener("click", () => {
+        const root = document.documentElement;
+        const next = root.dataset.theme === "light" ? "dark" : "light";
+        root.dataset.theme = next;
+        localStorage.setItem("theme", next);
+        toggle.setAttribute("aria-label", next === "light" ? "切换到深色模式" : "切换到浅色模式");
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  .site-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 3rem 2rem;
+    border-top: 1px solid var(--line);
+    color: var(--text-soft);
+    font-size: 0.78rem;
+  }
+
+  @media (max-width: 40rem) {
+    .site-footer {
+      flex-direction: column;
+    }
+  }
+</style>

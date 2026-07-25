@@ -1,0 +1,72 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const posts = await getCollection("posts", ({ data }) => !data.draft);
+const counts = new Map<string, number>();
+for (const post of posts) {
+  for (const tag of post.data.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+}
+const tags = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "zh-CN"));
+---
+
+<BaseLayout title="主题" description="按照主题进入文章。">
+  <section class="tag-page shell">
+    <p class="eyebrow">Topics</p>
+    <h1>主题</h1>
+    <div class="tag-cloud">
+      {
+        tags.map(([tag, count]) => (
+          <a href={`/tags/${encodeURIComponent(tag)}/`}>
+            <span>{tag}</span>
+            <small>{count}</small>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .tag-page {
+    min-height: 70vh;
+    padding-block: 6rem;
+  }
+
+  h1 {
+    margin: 0 0 4rem;
+    font-family: var(--serif);
+    font-size: clamp(3.5rem, 9vw, 7rem);
+    font-weight: 500;
+    letter-spacing: -0.06em;
+    line-height: 1;
+  }
+
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+
+  .tag-cloud a {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    text-decoration: none;
+    transition: transform 160ms ease, border-color 160ms ease;
+  }
+
+  .tag-cloud a:hover {
+    transform: translateY(-0.15rem);
+    border-color: var(--accent);
+  }
+
+  small {
+    color: var(--text-soft);
+    font-family: var(--mono);
+  }
+</style>

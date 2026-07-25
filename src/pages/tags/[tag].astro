@@ -1,0 +1,63 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArticleCard from "../../components/ArticleCard.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts", ({ data }) => !data.draft);
+  const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+  return tags.map((tag) => ({
+    params: { tag },
+    props: { tag, posts: posts.filter((post) => post.data.tags.includes(tag)) },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout title={`主题：${tag}`} description={`标记为“${tag}”的文章。`}>
+  <header class="page-header shell">
+    <a href="/tags/">← 全部主题</a>
+    <p class="eyebrow">Topic</p>
+    <h1>{tag}</h1>
+  </header>
+  <div class="post-list shell">
+    {posts.map((post, index) => <ArticleCard post={post} index={index} />)}
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    padding-block: 5rem 3rem;
+  }
+
+  .page-header > a {
+    display: inline-block;
+    margin-bottom: 3rem;
+    color: var(--text-soft);
+    font-size: 0.76rem;
+    text-decoration: none;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 500;
+    letter-spacing: -0.05em;
+  }
+
+  .post-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    padding-bottom: 7rem;
+  }
+
+  @media (max-width: 48rem) {
+    .post-list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

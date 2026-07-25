@@ -1,0 +1,243 @@
+---
+import type { CollectionEntry } from "astro:content";
+import type { MarkdownHeading } from "astro";
+import BaseLayout from "./BaseLayout.astro";
+import TableOfContents from "../components/TableOfContents.astro";
+
+interface Props {
+  post: CollectionEntry<"posts">;
+  headings: MarkdownHeading[];
+}
+
+const { post, headings } = Astro.props;
+const { appearance } = post.data;
+const date = post.data.pubDate.toLocaleDateString("zh-CN", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+const background = appearance.backgroundImage
+  ? `url("${appearance.backgroundImage}")`
+  : "none";
+const articleStyle = [
+  `--article-accent: ${appearance.accent}`,
+  `--article-overlay: ${appearance.overlay}`,
+  `--article-background: ${background}`,
+  `--article-background-position: ${appearance.backgroundPosition}`,
+].join(";");
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  image={post.data.appearance.backgroundImage}
+>
+  <article class="article-world" style={articleStyle}>
+    <div class="article-backdrop" aria-hidden="true"></div>
+    <header class="article-header shell">
+      <a class="back-link" href="/posts/">← 全部文章</a>
+      <p class="article-kicker">{post.data.tags[0] ?? "随笔"}</p>
+      <h1>{post.data.title}</h1>
+      <p class="dek">{post.data.description}</p>
+      <div class="article-meta">
+        <time datetime={post.data.pubDate.toISOString()}>{date}</time>
+        <span>{post.data.tags.map((tag) => `#${tag}`).join(" · ")}</span>
+      </div>
+    </header>
+    <div class:list={["article-grid", "shell", { "without-toc": !post.data.toc }]}>
+      <div class="prose" data-article-body>
+        <slot />
+      </div>
+      {post.data.toc && <TableOfContents headings={headings} />}
+    </div>
+  </article>
+</BaseLayout>
+
+<style is:global>
+  .article-world {
+    --accent: var(--article-accent);
+    position: relative;
+    isolation: isolate;
+    padding-bottom: 5rem;
+  }
+
+  .article-backdrop {
+    position: absolute;
+    z-index: -2;
+    inset: 0 0 auto;
+    height: min(82vh, 52rem);
+    background-image:
+      linear-gradient(
+        to bottom,
+        rgb(11 12 16 / var(--article-overlay)) 0%,
+        rgb(11 12 16 / calc(var(--article-overlay) + 0.08)) 62%,
+        var(--bg) 100%
+      ),
+      var(--article-background),
+      radial-gradient(circle at 70% 15%, color-mix(in srgb, var(--accent) 28%, transparent), transparent 32rem);
+    background-position: center, var(--article-background-position), center;
+    background-size: cover;
+    pointer-events: none;
+  }
+
+  :root[data-theme="light"] .article-backdrop {
+    opacity: 0.48;
+  }
+
+  .article-header {
+    max-width: 58rem;
+    padding-block: clamp(4.5rem, 10vw, 9rem) clamp(3rem, 7vw, 5.5rem);
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 3rem;
+    color: var(--text-soft);
+    font-size: 0.76rem;
+    text-decoration: none;
+  }
+
+  .article-kicker {
+    margin: 0 0 1rem;
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .article-header h1 {
+    max-width: 16ch;
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(2.6rem, 7vw, 5.7rem);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    line-height: 1.06;
+  }
+
+  .dek {
+    max-width: 40rem;
+    margin: 1.6rem 0 0;
+    color: var(--text-soft);
+    font-family: var(--serif);
+    font-size: clamp(1rem, 2vw, 1.25rem);
+  }
+
+  .article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem 1.5rem;
+    margin-top: 2rem;
+    color: var(--text-soft);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+  }
+
+  .article-grid {
+    display: grid;
+    grid-template-columns: minmax(0, var(--content)) 13rem;
+    justify-content: center;
+    gap: clamp(3rem, 8vw, 7rem);
+  }
+
+  .article-grid.without-toc {
+    grid-template-columns: minmax(0, var(--content));
+  }
+
+  .prose {
+    min-width: 0;
+    font-family: var(--serif);
+    font-size: clamp(1rem, 1.4vw, 1.08rem);
+    line-height: 1.95;
+  }
+
+  .prose > :first-child {
+    margin-top: 0;
+  }
+
+  .prose h2,
+  .prose h3 {
+    scroll-margin-top: 7rem;
+    font-family: var(--sans);
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+  }
+
+  .prose h2 {
+    margin: 4rem 0 1.2rem;
+    font-size: clamp(1.55rem, 3vw, 2rem);
+  }
+
+  .prose h3 {
+    margin: 2.8rem 0 1rem;
+    font-size: 1.2rem;
+  }
+
+  .prose p,
+  .prose ul,
+  .prose ol,
+  .prose blockquote {
+    margin-block: 1.35rem;
+  }
+
+  .prose a {
+    color: var(--accent);
+  }
+
+  .prose blockquote {
+    margin-inline: 0;
+    padding: 0.15rem 0 0.15rem 1.25rem;
+    border-left: 2px solid var(--accent);
+    color: var(--text-soft);
+    font-size: 1.05em;
+  }
+
+  .prose img {
+    display: block;
+    width: min(62rem, calc(100vw - 2rem));
+    max-width: none;
+    margin: 2.5rem 50%;
+    transform: translateX(-50%);
+    border: 1px solid var(--line);
+    border-radius: 0.8rem;
+    box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.3);
+  }
+
+  .prose code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+  }
+
+  .prose :not(pre) > code {
+    padding: 0.14rem 0.35rem;
+    border: 1px solid var(--line);
+    border-radius: 0.35rem;
+    background: var(--surface);
+  }
+
+  .prose pre {
+    overflow-x: auto;
+    padding: 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: 0.8rem;
+  }
+
+  .prose hr {
+    margin-block: 3rem;
+    border: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .prose .katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-block: 0.6rem;
+  }
+
+  @media (max-width: 64rem) {
+    .article-grid {
+      grid-template-columns: minmax(0, var(--content));
+    }
+  }
+</style>

@@ -1,0 +1,260 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ArticleCard from "../components/ArticleCard.astro";
+
+const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+const featured = posts.filter((post) => post.data.featured);
+const visiblePosts = featured.length > 0 ? featured.slice(0, 4) : posts.slice(0, 4);
+---
+
+<BaseLayout>
+  <section class="hero shell">
+    <div class="hero-copy">
+      <p class="eyebrow">Essays · Aesthetics · Projects</p>
+      <h1>把仍在形成的想法，<br /><em>留在可以回看的地方。</em></h1>
+      <p class="hero-description">
+        这里收录长篇随笔、审美分析与项目记录。网站保持安静，只在需要时提供一点运动。
+      </p>
+      <div class="hero-actions">
+        <a class="primary-action" href="/posts/">开始阅读</a>
+        <a href="/about/">关于这里</a>
+      </div>
+    </div>
+    <div class="orbit" aria-hidden="true">
+      <span class="orbit-line orbit-one"></span>
+      <span class="orbit-line orbit-two"></span>
+      <span class="orbit-core"></span>
+      <span class="orbit-label label-one">观察</span>
+      <span class="orbit-label label-two">结构</span>
+      <span class="orbit-label label-three">表达</span>
+    </div>
+  </section>
+
+  <section class="latest shell">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Selected writing</p>
+        <h2>最近的文字</h2>
+      </div>
+      <a href="/posts/">查看全部 <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="article-grid">
+      {visiblePosts.map((post, index) => <ArticleCard post={post} index={index} />)}
+    </div>
+  </section>
+
+  <section class="project-note shell">
+    <p class="eyebrow">In progress</p>
+    <div>
+      <h2>项目也可以是一种思考记录。</h2>
+      <p>未来这里会展示创作工具、研究项目，以及它们为什么被做成现在的样子。</p>
+    </div>
+    <a href="/about/">了解计划</a>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
+    align-items: center;
+    min-height: min(48rem, calc(100vh - 4.25rem));
+    padding-block: 5rem;
+  }
+
+  .hero-copy {
+    position: relative;
+    z-index: 2;
+  }
+
+  h1 {
+    max-width: 14ch;
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(3rem, 7.2vw, 6.4rem);
+    font-weight: 500;
+    letter-spacing: -0.055em;
+    line-height: 1.05;
+  }
+
+  h1 em {
+    color: var(--text-soft);
+    font-weight: 400;
+  }
+
+  .hero-description {
+    max-width: 34rem;
+    margin: 2rem 0 0;
+    color: var(--text-soft);
+    font-family: var(--serif);
+    font-size: clamp(1rem, 2vw, 1.18rem);
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+    font-size: 0.8rem;
+  }
+
+  .hero-actions a {
+    text-decoration: none;
+  }
+
+  .primary-action {
+    padding: 0.75rem 1.1rem;
+    border-radius: 999px;
+    background: var(--text);
+    color: var(--bg);
+  }
+
+  .orbit {
+    position: relative;
+    width: min(32vw, 24rem);
+    aspect-ratio: 1;
+    justify-self: end;
+  }
+
+  .orbit-line,
+  .orbit-core,
+  .orbit-label {
+    position: absolute;
+  }
+
+  .orbit-line {
+    inset: 8%;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    animation: rotate 24s linear infinite;
+  }
+
+  .orbit-line::after {
+    position: absolute;
+    top: 13%;
+    left: 13%;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 1.5rem var(--accent);
+    content: "";
+  }
+
+  .orbit-two {
+    inset: 24%;
+    border-style: dashed;
+    animation-direction: reverse;
+    animation-duration: 17s;
+  }
+
+  .orbit-core {
+    inset: 42%;
+    border-radius: 50%;
+    background: var(--text);
+    box-shadow: 0 0 5rem var(--accent-soft);
+  }
+
+  .orbit-label {
+    color: var(--text-soft);
+    font-family: var(--mono);
+    font-size: 0.66rem;
+  }
+
+  .label-one {
+    top: 5%;
+    right: 10%;
+  }
+
+  .label-two {
+    bottom: 18%;
+    left: 0;
+  }
+
+  .label-three {
+    right: 2%;
+    bottom: 8%;
+  }
+
+  .latest {
+    padding-block: 6rem 8rem;
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .section-heading h2,
+  .project-note h2 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+  }
+
+  .section-heading > a,
+  .project-note > a {
+    color: var(--text-soft);
+    font-size: 0.76rem;
+    text-decoration: none;
+  }
+
+  .article-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .project-note {
+    display: grid;
+    grid-template-columns: 10rem 1fr auto;
+    align-items: start;
+    gap: 2rem;
+    padding-block: 4rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .project-note p:not(.eyebrow) {
+    max-width: 38rem;
+    color: var(--text-soft);
+  }
+
+  @keyframes rotate {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (max-width: 48rem) {
+    .hero {
+      grid-template-columns: 1fr;
+      min-height: auto;
+      padding-block: 6rem 4rem;
+    }
+
+    .orbit {
+      position: absolute;
+      z-index: 0;
+      top: 7rem;
+      right: -5rem;
+      width: 18rem;
+      opacity: 0.45;
+    }
+
+    .article-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .project-note {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
