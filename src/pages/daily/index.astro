@@ -65,22 +65,39 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
               <span>{String(day.items.length).padStart(2, "0")} 条记录</span>
             </header>
 
-            <div class="paper-moments">
-              {
-                day.items.map((item, index) =>
-                  item.kind === "moment" ? (
-                    <MomentStrip
-                      moment={item}
-                      Content={item.Content}
-                      index={index}
-                      compact
-                    />
-                  ) : (
-                    <DailyNoteEntry note={item} Content={item.Content} compact />
-                  ),
-                )
-              }
+            <div
+              class="paper-moments-wrap"
+              id={`day-content-${day.key}`}
+              data-day-content
+            >
+              <div class="paper-moments">
+                {
+                  day.items.map((item, index) =>
+                    item.kind === "moment" ? (
+                      <MomentStrip
+                        moment={item}
+                        Content={item.Content}
+                        index={index}
+                      />
+                    ) : (
+                      <DailyNoteEntry note={item} Content={item.Content} />
+                    ),
+                  )
+                }
+              </div>
             </div>
+
+            <button
+              class="paper-expand"
+              type="button"
+              data-day-expand
+              aria-controls={`day-content-${day.key}`}
+              aria-expanded="false"
+              hidden
+            >
+              <span data-expand-label>展开这一天</span>
+              <span aria-hidden="true">↓</span>
+            </button>
 
             <footer class="paper-footer">
               <div>
@@ -96,6 +113,38 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  const previewHeight = 400;
+
+  const prepareDayPapers = () => {
+    document.querySelectorAll<HTMLElement>(".day-paper").forEach((paper) => {
+      const content = paper.querySelector<HTMLElement>("[data-day-content]");
+      const button = paper.querySelector<HTMLButtonElement>("[data-day-expand]");
+      const label = button?.querySelector<HTMLElement>("[data-expand-label]");
+      if (!content || !button || !label || paper.dataset.expanded === "true") return;
+
+      const shouldCollapse = content.scrollHeight > previewHeight + 24;
+      paper.classList.toggle("is-collapsed", shouldCollapse);
+      button.hidden = !shouldCollapse;
+
+      if (button.dataset.ready === "true") return;
+      button.dataset.ready = "true";
+      button.addEventListener("click", () => {
+        const isExpanded = button.getAttribute("aria-expanded") === "true";
+        button.setAttribute("aria-expanded", String(!isExpanded));
+        paper.dataset.expanded = String(!isExpanded);
+        paper.classList.toggle("is-collapsed", isExpanded);
+        label.textContent = isExpanded ? "展开这一天" : "收起这一天";
+        button.lastElementChild!.textContent = isExpanded ? "↓" : "↑";
+      });
+    });
+  };
+
+  requestAnimationFrame(prepareDayPapers);
+  document.fonts.ready.then(prepareDayPapers);
+  window.addEventListener("load", prepareDayPapers, { once: true });
+</script>
 
 <style>
   :global(body.daily-page) {
@@ -260,6 +309,52 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   .paper-moments {
     display: grid;
     gap: 1.15rem;
+  }
+
+  .paper-moments-wrap {
+    position: relative;
+  }
+
+  .day-paper.is-collapsed .paper-moments-wrap {
+    max-height: 25rem;
+    overflow: hidden;
+    mask-image: linear-gradient(
+      to bottom,
+      oklch(0 0 0) 0 calc(100% - 5rem),
+      transparent 100%
+    );
+  }
+
+  .paper-expand {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    margin-top: 1rem;
+    padding: 0.65rem 1rem;
+    border: 1px dashed oklch(0.5625 0.1581 38.11 / 0.4);
+    border-radius: 999px;
+    background: oklch(0.95 0.035 75 / 0.72);
+    color: oklch(0.43 0.11 39);
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .paper-expand[hidden] {
+    display: none;
+  }
+
+  .paper-expand:hover {
+    border-color: oklch(0.5625 0.1581 38.11 / 0.72);
+    background: oklch(0.92 0.055 72 / 0.88);
+  }
+
+  .paper-expand:focus-visible {
+    outline: 2px solid oklch(0.42 0.12 265);
+    outline-offset: 3px;
   }
 
   .paper-footer {
