@@ -1,0 +1,93 @@
+---
+import type { MomentRecord } from "../utils/moments";
+
+interface Props {
+  moment: MomentRecord;
+  Content: any;
+  index: number;
+  compact?: boolean;
+}
+
+const { moment, Content, index, compact = false } = Astro.props;
+const offsets = [1, 7, 3, 10, 5];
+const tilts = [-0.35, 0.28, -0.12, 0.4, -0.24];
+const offset = offsets[index % offsets.length];
+const tilt = tilts[index % tilts.length];
+---
+
+<article
+  class:list={["moment-strip", `tone-${moment.tone}`, { compact }]}
+  style={`--strip-offset: ${offset}%; --strip-tilt: ${tilt}deg`}
+>
+  <time datetime={moment.createdAt.toISOString()}>{moment.timeLabel}</time>
+  <div class="moment-copy">
+    <Content />
+  </div>
+</article>
+
+<style>
+  .moment-strip {
+    width: calc(94% - var(--strip-offset));
+    margin-left: var(--strip-offset);
+    padding: 0.85rem 1rem 0.95rem;
+    transform: rotate(var(--strip-tilt));
+    border: 1px solid oklch(0.3359 0.0471 53.62 / 0.12);
+    border-radius: 0.18rem 0.35rem 0.28rem 0.14rem;
+    background: var(--strip-color);
+    box-shadow:
+      0 0.2rem 0.35rem oklch(0.2787 0.0219 57.72 / 0.08),
+      0 0.7rem 1.3rem -0.85rem oklch(0.2787 0.0219 57.72 / 0.22);
+  }
+
+  .tone-morning {
+    --strip-color: oklch(0.9 0.105 90);
+  }
+
+  .tone-day {
+    --strip-color: oklch(0.84 0.105 62);
+  }
+
+  .tone-evening {
+    --strip-color: oklch(0.76 0.135 38);
+  }
+
+  .tone-night {
+    --strip-color: oklch(0.7 0.065 285);
+  }
+
+  time {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: oklch(0.2787 0.0219 57.72 / 0.65);
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .moment-copy {
+    font-family: var(--serif);
+    font-size: 0.98rem;
+    line-height: 1.7;
+  }
+
+  .moment-copy :global(p) {
+    margin: 0;
+  }
+
+  .moment-copy :global(p + p) {
+    margin-top: 0.8rem;
+  }
+
+  .compact .moment-copy {
+    max-height: 5.1em;
+    overflow: hidden;
+    mask-image: linear-gradient(to bottom, oklch(0 0 0) 72%, transparent);
+  }
+
+  @media (max-width: 34rem) {
+    .moment-strip {
+      width: calc(98% - var(--strip-offset));
+    }
+  }
+</style>

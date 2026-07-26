@@ -35,7 +35,7 @@ toc: true
 appearance:
   backgroundImage: "/images/example/background.jpg"
   backgroundPosition: "center 35%"
-  accent: "#b8a7ff"
+  accent: "oklch(0.79 0.10 285)"
   overlay: 0.84
 ---
 ```
@@ -48,28 +48,60 @@ appearance:
 - `draft: true` 的文章不会出现在构建结果中。
 - 不需要文章背景图时，删掉 `backgroundImage` 即可。
 
-## 写一张日常卡片
+## 写一条状态
 
-在 `src/content/notes/` 中新建 Markdown 文件，建议直接以日期命名，例如 `2026-07-27.md`：
+运行：
+
+```powershell
+npm run moment
+```
+
+网站会按上海时间创建文件，例如：
+
+```text
+src/content/moments/2026/07/27/14-32-18.md
+```
+
+直接打开这个文件写 Markdown 正文即可，不需要填写日期和时间：
+
+```md
+下午重新整理了这个问题，发现我真正关心的是……
+```
+
+需要天气或标签时，可以选择性添加：
 
 ```yaml
 ---
-date: 2026-07-27
-title: 今天的标题
 weather: 午后 · 晴
 tags:
   - 日常
-draft: false
 ---
-
-这里写当天想留下的短句或片段。
 ```
 
-首页会自动显示日期最新的一张卡片；“日常”页面会按日期倒序展示全部卡片。
+首页只显示时间最新的一条状态；“日常”页面会自动将同一天的状态收集到同一张横线纸上，
+并为每一天生成 `/daily/YYYY-MM-DD/` 时间线页面。
+
+### PowerShell 快速发布
+
+安装快捷命令后，可以在任意目录直接运行：
+
+```powershell
+moment "下午重新整理了这个问题，发现我真正关心的是……"
+```
+
+这条命令会按上海时间生成状态文件，只提交这个新文件，然后推送到 GitHub。项目路径保存在：
+
+```text
+~\.config\wozonet-site\env.ps1
+```
+
+如果以后移动了仓库，只需要修改其中的 `$env:WOZONET_SITE`。
 
 ## Obsidian 写作
 
-可以把 `src/content/posts/` 作为 Obsidian 仓库的一部分，或在其他仓库写完后复制进来。图片最好集中保存到 `astro-public/images/文章名/`，并在 Markdown 中使用根路径：
+可以把 `src/content/posts/` 和 `src/content/moments/` 作为 Obsidian 仓库的一部分，
+或在其他仓库写完后复制进来。图片最好集中保存到 `astro-public/images/文章名/`，
+并在 Markdown 中使用根路径：
 
 ```md
 ![图片说明](/images/文章名/示例.jpg)

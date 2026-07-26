@@ -1,0 +1,285 @@
+---
+import { getCollection, render } from "astro:content";
+import MomentStrip from "../../components/MomentStrip.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import {
+  groupMomentsByDay,
+  type MomentDay,
+} from "../../utils/moments";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("moments", ({ data }) => !data.draft);
+
+  return groupMomentsByDay(entries).map((day) => ({
+    params: { date: day.key },
+    props: { day },
+  }));
+}
+
+interface Props {
+  day: MomentDay;
+}
+
+const { day } = Astro.props;
+const moments = await Promise.all(
+  day.moments.map(async (moment) => ({
+    ...moment,
+    Content: (await render(moment.entry)).Content,
+  })),
+);
+const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+  timeZone: "Asia/Shanghai",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  weekday: "long",
+});
+---
+
+<BaseLayout
+  title={dateFormatter.format(day.date)}
+  description={`${dateFormatter.format(day.date)}的日常状态记录。`}
+  pageClass="daily-page day-detail-page"
+  defaultTheme="light"
+  lockTheme
+>
+  <section class="day-view shell">
+    <nav class="back-row" aria-label="日常记录导航">
+      <a href="/daily/"><span aria-hidden="true">←</span> 回到所有日子</a>
+      <span>{day.moments.length} 张纸条</span>
+    </nav>
+
+    <article class="day-sheet">
+      <header class="sheet-heading">
+        <div>
+          <p>{day.weather ?? "一些被留下的时刻"}</p>
+          <h1>{dateFormatter.format(day.date)}</h1>
+        </div>
+        <span>{day.key.replaceAll("-", " / ")}</span>
+      </header>
+
+      <div class="sheet-timeline">
+        {
+          moments.map((moment, index) => (
+            <div class="timeline-row">
+              <span class="timeline-mark" aria-hidden="true"></span>
+              <MomentStrip
+                moment={moment}
+                Content={moment.Content}
+                index={index}
+              />
+            </div>
+          ))
+        }
+      </div>
+
+      {
+        day.tags.length > 0 && (
+          <footer class="sheet-tags">
+            {day.tags.map((tag) => <span>#{tag}</span>)}
+          </footer>
+        )
+      }
+    </article>
+  </section>
+</BaseLayout>
+
+<style>
+  :global(body.daily-page) {
+    --daily-ink: oklch(0.2787 0.0219 57.72);
+    --daily-muted: oklch(0.5233 0.0325 61.83);
+    color-scheme: only light;
+    background:
+      radial-gradient(
+        circle at 12% 4%,
+        oklch(0.86 0.11 76 / 0.34),
+        transparent 28rem
+      ),
+      radial-gradient(
+        circle at 88% 30%,
+        oklch(0.74 0.075 285 / 0.14),
+        transparent 32rem
+      ),
+      oklch(0.9 0.045 84);
+    color: var(--daily-ink);
+  }
+
+  :global(body.daily-page)::before {
+    opacity: 0;
+  }
+
+  :global(body.daily-page .site-footer) {
+    border-color: oklch(0.3359 0.0471 53.62 / 0.15);
+    color: var(--daily-muted);
+  }
+
+  .day-view {
+    max-width: 60rem;
+    padding-block: 3.5rem 9rem;
+  }
+
+  .back-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    color: var(--daily-muted);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+  }
+
+  .back-row a {
+    color: var(--daily-ink);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .day-sheet {
+    position: relative;
+    padding: clamp(2rem, 6vw, 4.8rem) clamp(1.5rem, 7vw, 6rem) 6rem;
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% 98.5%,
+      96% 99.7%,
+      91% 98.6%,
+      86% 99.8%,
+      80% 98.7%,
+      74% 99.7%,
+      68% 98.5%,
+      61% 99.8%,
+      54% 98.7%,
+      47% 99.6%,
+      40% 98.6%,
+      33% 99.8%,
+      26% 98.7%,
+      19% 99.7%,
+      12% 98.5%,
+      6% 99.6%,
+      0 98.6%
+    );
+    background:
+      linear-gradient(
+        to right,
+        transparent 0 3.3rem,
+        oklch(0.67 0.09 25 / 0.13) 3.3rem calc(3.3rem + 1px),
+        transparent calc(3.3rem + 1px)
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0 2.3rem,
+        oklch(0.62 0.055 245 / 0.18) 2.3rem calc(2.3rem + 1px)
+      ),
+      oklch(0.986 0.012 88);
+    box-shadow: 0 1.8rem 4rem oklch(0.35 0.055 55 / 0.16);
+  }
+
+  .sheet-heading {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 4rem;
+    padding-bottom: 1.4rem;
+    border-bottom: 1px solid oklch(0.3359 0.0471 53.62 / 0.14);
+  }
+
+  .sheet-heading p {
+    margin: 0 0 0.45rem;
+    color: oklch(0.5625 0.1581 38.11);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 6vw, 4.6rem);
+    font-weight: 600;
+    letter-spacing: -0.055em;
+    line-height: 1.12;
+  }
+
+  .sheet-heading > span {
+    color: var(--daily-muted);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    white-space: nowrap;
+  }
+
+  .sheet-timeline {
+    display: grid;
+    gap: 2.2rem;
+  }
+
+  .timeline-row {
+    position: relative;
+  }
+
+  .timeline-row:not(:last-child)::after {
+    position: absolute;
+    z-index: -1;
+    top: calc(100% - 0.15rem);
+    bottom: -2.35rem;
+    left: 0.48rem;
+    width: 1px;
+    background: oklch(0.3359 0.0471 53.62 / 0.2);
+    content: "";
+  }
+
+  .timeline-mark {
+    position: absolute;
+    top: 1.05rem;
+    left: 0.19rem;
+    width: 0.62rem;
+    height: 0.62rem;
+    border: 1px solid oklch(0.3359 0.0471 53.62 / 0.32);
+    border-radius: 50%;
+    background: oklch(0.986 0.012 88);
+  }
+
+  .timeline-row :global(.moment-strip) {
+    margin-left: calc(1.5rem + var(--strip-offset));
+  }
+
+  .sheet-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 4rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid oklch(0.3359 0.0471 53.62 / 0.14);
+    color: var(--daily-muted);
+    font-size: 0.7rem;
+  }
+
+  @media (max-width: 38rem) {
+    .day-view {
+      padding-block: 2.5rem 6rem;
+    }
+
+    .day-sheet {
+      padding-inline: 1.2rem;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0 2.3rem,
+          oklch(0.62 0.055 245 / 0.18) 2.3rem calc(2.3rem + 1px)
+        ),
+        oklch(0.986 0.012 88);
+    }
+
+    .sheet-heading {
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-bottom: 3rem;
+    }
+
+    .timeline-row :global(.moment-strip) {
+      width: calc(94% - var(--strip-offset));
+      margin-left: calc(1rem + var(--strip-offset));
+    }
+  }
+</style>

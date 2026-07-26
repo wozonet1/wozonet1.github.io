@@ -1,13 +1,17 @@
 ---
 import { getCollection, render } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { sortMoments } from "../utils/moments";
 
-const notes = (await getCollection("notes", ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+const moments = sortMoments(
+  await getCollection("moments", ({ data }) => !data.draft),
 );
-const latestNote = notes[0];
-const { Content } = latestNote ? await render(latestNote) : { Content: null };
+const latestMoment = moments[0];
+const { Content } = latestMoment
+  ? await render(latestMoment.entry)
+  : { Content: null };
 const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+  timeZone: "Asia/Shanghai",
   year: "numeric",
   month: "long",
   day: "numeric",
@@ -32,28 +36,32 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
     </div>
 
     {
-      latestNote && Content ? (
-        <a class="note-stack" href="/daily/" aria-label="查看今日记录与往日卡片">
+      latestMoment && Content ? (
+        <a
+          class="note-stack"
+          href={`/daily/${latestMoment.dayKey}/`}
+          aria-label="查看这一天的完整记录"
+        >
           <span class="stack-card stack-third" aria-hidden="true" />
           <span class="stack-card stack-second" aria-hidden="true" />
           <article class="daily-card">
             <header>
               <div>
-                <span class="card-label">今天的卡片</span>
-                <time datetime={latestNote.data.date.toISOString()}>
-                  {dateFormatter.format(latestNote.data.date)}
+                <span class="card-label">最新的纸条</span>
+                <time datetime={latestMoment.createdAt.toISOString()}>
+                  {dateFormatter.format(latestMoment.createdAt)} · {latestMoment.timeLabel}
                 </time>
               </div>
               <span class="card-number" aria-hidden="true">
-                #{String(notes.length).padStart(3, "0")}
+                #{String(moments.length).padStart(3, "0")}
               </span>
             </header>
             <div class="daily-copy">
               <Content />
             </div>
             <footer>
-              <span>{latestNote.data.weather ?? "一些正在发生的事"}</span>
-              <strong>翻看往日卡片 <span aria-hidden="true">↗</span></strong>
+              <span>{latestMoment.entry.data.weather ?? "一些正在发生的事"}</span>
+              <strong>展开这一天 <span aria-hidden="true">↗</span></strong>
             </footer>
           </article>
         </a>

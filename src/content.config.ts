@@ -18,26 +18,24 @@ const posts = defineCollection({
       .object({
         backgroundImage: z.string().optional(),
         backgroundPosition: z.string().default("center"),
-        accent: z.string().default("#a8b8ff"),
+        accent: z.string().default("oklch(0.7966 0.1026 274.09)"),
         overlay: z.number().min(0).max(1).default(0.84),
       })
       .default({
         backgroundPosition: "center",
-        accent: "#a8b8ff",
+        accent: "oklch(0.7966 0.1026 274.09)",
         overlay: 0.84,
       }),
   }),
 });
 
-const notes = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/notes" }),
+const moments = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/moments" }),
   schema: z.object({
-    date: z.coerce.date(),
-    title: z.string().default("今日小记"),
     weather: z.string().optional(),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),
 });
 
-export const collections = { posts, notes };
+export const collections = { posts, moments };
