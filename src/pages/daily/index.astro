@@ -1,18 +1,22 @@
 ---
 import { getCollection, render } from "astro:content";
+import DailyNoteEntry from "../../components/DailyNoteEntry.astro";
 import MomentStrip from "../../components/MomentStrip.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { groupMomentsByDay } from "../../utils/moments";
+import { groupDailyEntriesByDay } from "../../utils/moments";
 
-const entries = await getCollection("moments", ({ data }) => !data.draft);
-const days = groupMomentsByDay(entries);
+const [momentEntries, noteEntries] = await Promise.all([
+  getCollection("moments", ({ data }) => !data.draft),
+  getCollection("dailyNotes", ({ data }) => !data.draft),
+]);
+const days = groupDailyEntriesByDay(momentEntries, noteEntries);
 const renderedDays = await Promise.all(
   days.map(async (day) => ({
     ...day,
-    moments: await Promise.all(
-      day.moments.map(async (moment) => ({
-        ...moment,
-        Content: (await render(moment.entry)).Content,
+    items: await Promise.all(
+      day.items.map(async (item) => ({
+        ...item,
+        Content: (await render(item.entry)).Content,
       })),
     ),
   })),
@@ -28,7 +32,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
 
 <BaseLayout
   title="日常记录"
-  description="一天是一张横线纸，散落的时刻被收集成一组纸条。"
+  description="一天是一张横线纸，短暂的状态与较长的随记按时间留在同一页上。"
   pageClass="daily-page"
   defaultTheme="light"
   lockTheme
@@ -36,12 +40,14 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   <section class="daily-archive shell">
     <header class="archive-header">
       <div>
-        <p>DAILY NOTES · {entries.length} MOMENTS / {days.length} DAYS</p>
-        <h1>贴在这里的日子</h1>
+        <p>
+          DAILY NOTES · {momentEntries.length} MOMENTS + {noteEntries.length} NOTES / {days.length} DAYS
+        </p>
+        <h1>留在这里的日子</h1>
       </div>
       <p class="archive-description">
-        每一次短小记录都是一张纸条。同一天出现的纸条会自动回到同一页横线纸上，
-        按它们出现的时刻排列。
+        状态是一张临时贴下的纸条，随记则直接写在当天的横线纸上。
+        它们会按出现的时刻回到同一天里。
       </p>
     </header>
 
@@ -56,18 +62,24 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
                   <a href={`/daily/${day.key}/`}>{dateFormatter.format(day.date)}</a>
                 </h2>
               </div>
-              <span>{String(day.moments.length).padStart(2, "0")} 张纸条</span>
+              <span>{String(day.items.length).padStart(2, "0")} 条记录</span>
             </header>
 
             <div class="paper-moments">
-              {day.moments.map((moment, index) => (
-                <MomentStrip
-                  moment={moment}
-                  Content={moment.Content}
-                  index={index}
-                  compact
-                />
-              ))}
+              {
+                day.items.map((item, index) =>
+                  item.kind === "moment" ? (
+                    <MomentStrip
+                      moment={item}
+                      Content={item.Content}
+                      index={index}
+                      compact
+                    />
+                  ) : (
+                    <DailyNoteEntry note={item} Content={item.Content} compact />
+                  ),
+                )
+              }
             </div>
 
             <footer class="paper-footer">

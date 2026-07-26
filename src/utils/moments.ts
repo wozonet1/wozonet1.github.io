@@ -1,8 +1,10 @@
 import type { CollectionEntry } from "astro:content";
 
 export type MomentEntry = CollectionEntry<"moments">;
+export type DailyNoteEntry = CollectionEntry<"dailyNotes">;
 
 export interface MomentRecord {
+  kind: "moment";
   entry: MomentEntry;
   createdAt: Date;
   dayKey: string;
@@ -11,15 +13,28 @@ export interface MomentRecord {
   tone: "morning" | "day" | "evening" | "night";
 }
 
-export interface MomentDay {
+export interface DailyNoteRecord {
+  kind: "note";
+  entry: DailyNoteEntry;
+  createdAt: Date;
+  dayKey: string;
+  timeLabel: string;
+  hour: number;
+}
+
+export type DailyRecord = MomentRecord | DailyNoteRecord;
+
+export interface DailyDay {
   key: string;
   date: Date;
+  items: DailyRecord[];
   moments: MomentRecord[];
+  notes: DailyNoteRecord[];
   weather?: string;
   tags: string[];
 }
 
-const MOMENT_ID =
+const TIMED_ENTRY_ID =
   /(?:^|\/)(\d{4})\/(\d{2})\/(\d{2})\/(\d{2})-(\d{2})(?:-(\d{2}))?(?:\.(?:md|mdx))?$/;
 
 function toneForHour(hour: number): MomentRecord["tone"] {
@@ -29,13 +44,13 @@ function toneForHour(hour: number): MomentRecord["tone"] {
   return "night";
 }
 
-export function toMomentRecord(entry: MomentEntry): MomentRecord {
-  const normalizedId = entry.id.replaceAll("\\", "/");
-  const match = normalizedId.match(MOMENT_ID);
+function parseTimedEntryId(id: string, label: string) {
+  const normalizedId = id.replaceAll("\\", "/");
+  const match = normalizedId.match(TIMED_ENTRY_ID);
 
   if (!match) {
     throw new Error(
-      `状态文件路径必须是 moments/YYYY/MM/DD/HH-mm-ss.md，当前为：${entry.id}`,
+      `${label}文件路径必须是 YYYY/MM/DD/HH-mm-ss.md，当前为：${id}`,
     );
   }
 
@@ -45,12 +60,29 @@ export function toMomentRecord(entry: MomentEntry): MomentRecord {
   const hour = Number(hourText);
 
   return {
-    entry,
     dayKey,
     timeLabel,
     hour,
-    tone: toneForHour(hour),
     createdAt: new Date(`${dayKey}T${hourText}:${minute}:${second}+08:00`),
+  };
+}
+
+export function toMomentRecord(entry: MomentEntry): MomentRecord {
+  const time = parseTimedEntryId(entry.id, "状态");
+
+  return {
+    kind: "moment",
+    entry,
+    ...time,
+    tone: toneForHour(time.hour),
+  };
+}
+
+export function toDailyNoteRecord(entry: DailyNoteEntry): DailyNoteRecord {
+  return {
+    kind: "note",
+    entry,
+    ...parseTimedEntryId(entry.id, "随记"),
   };
 }
 
@@ -60,26 +92,45 @@ export function sortMoments(entries: MomentEntry[]): MomentRecord[] {
     .sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf());
 }
 
-export function groupMomentsByDay(entries: MomentEntry[]): MomentDay[] {
-  const groups = new Map<string, MomentRecord[]>();
+export function groupDailyEntriesByDay(
+  momentEntries: MomentEntry[],
+  noteEntries: DailyNoteEntry[],
+): DailyDay[] {
+  const records: DailyRecord[] = [
+    ...momentEntries.map(toMomentRecord),
+    ...noteEntries.map(toDailyNoteRecord),
+  ].sort((a, b) => b.createdAt.valueOf() - a.createdAt.valueOf());
+  const groups = new Map<string, DailyRecord[]>();
 
-  for (const moment of sortMoments(entries)) {
-    const day = groups.get(moment.dayKey) ?? [];
-    day.push(moment);
-    groups.set(moment.dayKey, day);
+  for (const record of records) {
+    const day = groups.get(record.dayKey) ?? [];
+    day.push(record);
+    groups.set(record.dayKey, day);
   }
 
-  return Array.from(groups, ([key, moments]) => {
-    const chronologicalMoments = moments.slice().reverse();
+  return Array.from(groups, ([key, recordsForDay]) => {
+    const items = recordsForDay.slice().reverse();
+    const moments = items.filter(
+      (item): item is MomentRecord => item.kind === "moment",
+    );
+    const notes = items.filter(
+      (item): item is DailyNoteRecord => item.kind === "note",
+    );
 
     return {
       key,
       date: new Date(`${key}T12:00:00+08:00`),
-      moments: chronologicalMoments,
+      items,
+      moments,
+      notes,
       weather: moments.find(({ entry }) => entry.data.weather)?.entry.data.weather,
       tags: Array.from(
-        new Set(chronologicalMoments.flatMap(({ entry }) => entry.data.tags)),
+        new Set(items.flatMap(({ entry }) => entry.data.tags)),
       ),
     };
   });
+}
+
+export function groupMomentsByDay(entries: MomentEntry[]): DailyDay[] {
+  return groupDailyEntriesByDay(entries, []);
 }

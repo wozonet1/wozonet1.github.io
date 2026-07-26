@@ -97,6 +97,54 @@ moment "下午重新整理了这个问题，发现我真正关心的是……"
 
 如果以后移动了仓库，只需要修改其中的 `$env:WOZONET_SITE`。
 
+需要修改刚才发布的状态时：
+
+```powershell
+moment-edit
+```
+
+它会用当前 VS Code 窗口打开时间最新的一条状态。保存修改后运行：
+
+```powershell
+moment-sync
+```
+
+`moment-sync` 只提交并推送今天的状态，不会带上随记、文章或界面代码。
+没有变化时会直接结束。
+
+### 写一则随记
+
+随记比状态更长，用来记录当天发生的事情、处境和心情。运行：
+
+```powershell
+note-new
+```
+
+命令会按上海时间在下面的目录创建空白 Markdown 文件，并立即用 VS Code 打开：
+
+```text
+src/content/daily-notes/YYYY/MM/DD/HH-mm-ss.md
+```
+
+直接写正文即可。随记不会显示成便利贴，而是按照时间直接排在当天的横线记录纸上。
+需要标签时可以选择性添加：
+
+```yaml
+---
+tags:
+  - 日常
+---
+```
+
+保存后发布今天的随记：
+
+```powershell
+note-sync
+```
+
+`note-sync` 只处理今天的 `daily-notes`，不会带上状态、文章或网站界面代码；
+没有变化时不会提交或推送。
+
 ## Obsidian 写作
 
 可以把 `src/content/posts/` 和 `src/content/moments/` 作为 Obsidian 仓库的一部分，

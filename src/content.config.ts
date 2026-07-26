@@ -38,4 +38,12 @@ const moments = defineCollection({
   }),
 });
 
-export const collections = { posts, moments };
+const dailyNotes = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/daily-notes" }),
+  schema: z.object({
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { posts, moments, dailyNotes };

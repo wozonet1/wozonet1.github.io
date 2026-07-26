@@ -1,30 +1,34 @@
 ---
 import { getCollection, render } from "astro:content";
+import DailyNoteEntry from "../../components/DailyNoteEntry.astro";
 import MomentStrip from "../../components/MomentStrip.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import {
-  groupMomentsByDay,
-  type MomentDay,
+  groupDailyEntriesByDay,
+  type DailyDay,
 } from "../../utils/moments";
 
 export async function getStaticPaths() {
-  const entries = await getCollection("moments", ({ data }) => !data.draft);
+  const [momentEntries, noteEntries] = await Promise.all([
+    getCollection("moments", ({ data }) => !data.draft),
+    getCollection("dailyNotes", ({ data }) => !data.draft),
+  ]);
 
-  return groupMomentsByDay(entries).map((day) => ({
+  return groupDailyEntriesByDay(momentEntries, noteEntries).map((day) => ({
     params: { date: day.key },
     props: { day },
   }));
 }
 
 interface Props {
-  day: MomentDay;
+  day: DailyDay;
 }
 
 const { day } = Astro.props;
-const moments = await Promise.all(
-  day.moments.map(async (moment) => ({
-    ...moment,
-    Content: (await render(moment.entry)).Content,
+const items = await Promise.all(
+  day.items.map(async (item) => ({
+    ...item,
+    Content: (await render(item.entry)).Content,
   })),
 );
 const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
@@ -38,7 +42,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
 
 <BaseLayout
   title={dateFormatter.format(day.date)}
-  description={`${dateFormatter.format(day.date)}的日常状态记录。`}
+  description={`${dateFormatter.format(day.date)}的日常记录。`}
   pageClass="daily-page day-detail-page"
   defaultTheme="light"
   lockTheme
@@ -46,7 +50,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   <section class="day-view shell">
     <nav class="back-row" aria-label="日常记录导航">
       <a href="/daily/"><span aria-hidden="true">←</span> 回到所有日子</a>
-      <span>{day.moments.length} 张纸条</span>
+      <span>{day.items.length} 条记录</span>
     </nav>
 
     <article class="day-sheet">
@@ -60,14 +64,20 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
 
       <div class="sheet-timeline">
         {
-          moments.map((moment, index) => (
-            <div class="timeline-row">
+          items.map((item, index) => (
+            <div class:list={["timeline-row", `kind-${item.kind}`]}>
               <span class="timeline-mark" aria-hidden="true"></span>
-              <MomentStrip
-                moment={moment}
-                Content={moment.Content}
-                index={index}
-              />
+              {
+                item.kind === "moment" ? (
+                  <MomentStrip
+                    moment={item}
+                    Content={item.Content}
+                    index={index}
+                  />
+                ) : (
+                  <DailyNoteEntry note={item} Content={item.Content} />
+                )
+              }
             </div>
           ))
         }
@@ -244,6 +254,19 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
     margin-left: calc(1.5rem + var(--strip-offset));
   }
 
+  .timeline-row :global(.daily-note) {
+    margin-left: 1.5rem;
+  }
+
+  .kind-note .timeline-mark {
+    top: 0.68rem;
+    width: 0.72rem;
+    height: 2px;
+    border: 0;
+    border-radius: 0;
+    background: oklch(0.5625 0.1581 38.11 / 0.42);
+  }
+
   .sheet-tags {
     display: flex;
     flex-wrap: wrap;
@@ -280,6 +303,10 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
     .timeline-row :global(.moment-strip) {
       width: calc(94% - var(--strip-offset));
       margin-left: calc(1rem + var(--strip-offset));
+    }
+
+    .timeline-row :global(.daily-note) {
+      margin-left: 1rem;
     }
   }
 </style>

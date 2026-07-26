@@ -1,0 +1,86 @@
+---
+import type { DailyNoteRecord } from "../utils/moments";
+
+interface Props {
+  note: DailyNoteRecord;
+  Content: any;
+  compact?: boolean;
+}
+
+const { note, Content, compact = false } = Astro.props;
+---
+
+<article class:list={["daily-note", { compact }]}>
+  <time datetime={note.createdAt.toISOString()}>{note.timeLabel}</time>
+  <div class="note-copy">
+    <Content />
+  </div>
+</article>
+
+<style>
+  .daily-note {
+    display: grid;
+    grid-template-columns: 3.4rem minmax(0, 1fr);
+    gap: 1rem;
+    padding: 0.2rem 0.3rem 0.6rem;
+  }
+
+  time {
+    padding-top: 0.42rem;
+    color: oklch(0.2787 0.0219 57.72 / 0.58);
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .note-copy {
+    min-width: 0;
+    font-family: var(--serif);
+    font-size: 1.03rem;
+    line-height: 2.3rem;
+  }
+
+  .note-copy :global(p) {
+    margin: 0;
+  }
+
+  .note-copy :global(p + p) {
+    margin-top: 1.15rem;
+  }
+
+  .note-copy :global(h2),
+  .note-copy :global(h3) {
+    margin: 1.4rem 0 0.55rem;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .note-copy :global(blockquote) {
+    margin: 1rem 0;
+    padding-left: 1rem;
+    border-left: 2px solid oklch(0.5625 0.1581 38.11 / 0.36);
+    color: oklch(0.36 0.025 58);
+  }
+
+  .compact {
+    grid-template-columns: 2.8rem minmax(0, 1fr);
+    gap: 0.7rem;
+    padding-inline: 0.15rem;
+  }
+
+  .compact .note-copy {
+    max-height: 6.9rem;
+    overflow: hidden;
+    font-size: 0.92rem;
+    line-height: 2.1rem;
+    mask-image: linear-gradient(to bottom, oklch(0 0 0) 68%, transparent);
+  }
+
+  @media (max-width: 34rem) {
+    .daily-note {
+      grid-template-columns: 2.7rem minmax(0, 1fr);
+      gap: 0.65rem;
+    }
+  }
+</style>

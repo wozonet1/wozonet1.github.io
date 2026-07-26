@@ -10,7 +10,8 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "moment": "node scripts/new-moment.mjs"
+    "moment": "node scripts/new-moment.mjs",
+    "note": "node scripts/new-daily-note.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "7.2.1",
