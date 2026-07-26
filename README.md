@@ -48,6 +48,25 @@ appearance:
 - `draft: true` 的文章不会出现在构建结果中。
 - 不需要文章背景图时，删掉 `backgroundImage` 即可。
 
+## 写一张日常卡片
+
+在 `src/content/notes/` 中新建 Markdown 文件，建议直接以日期命名，例如 `2026-07-27.md`：
+
+```yaml
+---
+date: 2026-07-27
+title: 今天的标题
+weather: 午后 · 晴
+tags:
+  - 日常
+draft: false
+---
+
+这里写当天想留下的短句或片段。
+```
+
+首页会自动显示日期最新的一张卡片；“日常”页面会按日期倒序展示全部卡片。
+
 ## Obsidian 写作
 
 可以把 `src/content/posts/` 作为 Obsidian 仓库的一部分，或在其他仓库写完后复制进来。图片最好集中保存到 `astro-public/images/文章名/`，并在 Markdown 中使用根路径：
@@ -62,4 +81,4 @@ Obsidian 的 `[[双链]]` 和 `![[嵌入]]` 不是标准 Markdown，发布前需
 
 推送到 `master` 后，`.github/workflows/deploy.yml` 会构建并发布 `dist/`。首次启用时，在 GitHub 仓库的 **Settings → Pages → Build and deployment → Source** 中选择 **GitHub Actions**。
 
-当前 `site` 配置是 `https://wozonet1.github.io`。绑定自定义域名时，还需要同步修改 `astro.config.mjs` 中的 `site`，并按 GitHub Pages / Cloudflare 的设置添加域名记录。
+当前 `site` 配置是 `https://wozonet.top`，自定义域名由 GitHub Pages 与 Cloudflare 共同解析。
