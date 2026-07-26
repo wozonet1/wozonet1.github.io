@@ -2,6 +2,7 @@
 import "katex/dist/katex.min.css";
 import "../styles/global.css";
 import SiteHeader from "../components/SiteHeader.astro";
+import WeChatMobileNotice from "../components/WeChatMobileNotice.astro";
 
 interface Props {
   title?: string;
@@ -59,6 +60,7 @@ const socialImage = image ? new URL(image, Astro.site) : undefined;
   </head>
   <body class={bodyClass}>
     <a class="skip-link" href="#main-content">跳到正文</a>
+    <WeChatMobileNotice />
     <SiteHeader />
     <main id="main-content" class="site-main">
       <slot />

@@ -1,0 +1,248 @@
+<aside
+  class="wechat-mobile-notice"
+  data-wechat-mobile-notice
+  role="status"
+  aria-live="polite"
+  hidden
+>
+  <div class="notice-row">
+    <div class="notice-copy" data-normal-copy>
+      <strong>建议使用电脑浏览</strong>
+      <span>这个网站主要为电脑端设计。手机仍可阅读，但部分排版和交互可能不够理想。</span>
+    </div>
+    <div class="notice-copy prank-copy" data-prank-copy hidden>
+      <strong>检测到安卓人使用安卓手机访问网站</strong>
+      <span>正在遣返中……</span>
+    </div>
+    <button type="button" data-notice-dismiss aria-label="关闭浏览提示">知道了</button>
+  </div>
+  <div class="notice-progress" data-notice-progress hidden aria-hidden="true">
+    <span></span>
+  </div>
+</aside>
+
+<script>
+  const notice = document.querySelector<HTMLElement>("[data-wechat-mobile-notice]");
+  const dismissButton =
+    notice?.querySelector<HTMLButtonElement>("[data-notice-dismiss]");
+  const normalCopy = notice?.querySelector<HTMLElement>("[data-normal-copy]");
+  const prankCopy = notice?.querySelector<HTMLElement>("[data-prank-copy]");
+  const progress = notice?.querySelector<HTMLElement>("[data-notice-progress]");
+  const storageKey = "wozonet-wechat-mobile-notice-v1";
+  const userAgent = navigator.userAgent;
+  const isWeChat = /MicroMessenger/i.test(userAgent);
+  const isAndroid = /Android/i.test(userAgent);
+  const isMobile =
+    /Android|iPhone|iPad|iPod|Mobile/i.test(userAgent) ||
+    window.matchMedia("(max-width: 50rem) and (pointer: coarse)").matches;
+
+  let noticeStorage: Storage | null = null;
+  for (const storageName of ["localStorage", "sessionStorage"] as const) {
+    try {
+      const candidate = window[storageName];
+      const testKey = `${storageKey}-test`;
+      candidate.setItem(testKey, "1");
+      candidate.removeItem(testKey);
+      noticeStorage = candidate;
+      break;
+    } catch {
+      // 微信的部分隐私环境可能禁用某一种浏览器存储，继续尝试备用存储。
+    }
+  }
+
+  const showNormalNotice = () => {
+    if (!notice) return;
+    notice.dataset.mode = "normal";
+    if (normalCopy) normalCopy.hidden = false;
+    if (prankCopy) prankCopy.hidden = true;
+    if (progress) progress.hidden = true;
+    if (dismissButton) dismissButton.hidden = false;
+    notice.hidden = false;
+    noticeStorage?.setItem(storageKey, "seen");
+  };
+
+  const showAndroidPrank = () => {
+    if (!notice || !noticeStorage) {
+      showNormalNotice();
+      return;
+    }
+
+    // 刷新前先写入下一阶段，避免任何情况下反复刷新。
+    noticeStorage.setItem(storageKey, "android-prank-finished");
+    notice.dataset.mode = "prank";
+    if (normalCopy) normalCopy.hidden = true;
+    if (prankCopy) prankCopy.hidden = false;
+    if (progress) progress.hidden = false;
+    if (dismissButton) dismissButton.hidden = true;
+    notice.hidden = false;
+    notice.dataset.progress = "waiting";
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        notice.dataset.progress = "running";
+      });
+    });
+
+    window.setTimeout(() => {
+      window.location.reload();
+    }, 3200);
+  };
+
+  if (notice && isWeChat && isMobile) {
+    const noticeState = noticeStorage?.getItem(storageKey);
+    if (noticeState === "android-prank-finished") {
+      showNormalNotice();
+    } else if (noticeState !== "seen" && isAndroid) {
+      showAndroidPrank();
+    } else if (noticeState !== "seen") {
+      showNormalNotice();
+    }
+  }
+
+  dismissButton?.addEventListener("click", () => {
+    if (notice) notice.hidden = true;
+  });
+</script>
+
+<style>
+  .wechat-mobile-notice {
+    position: fixed;
+    z-index: 1000;
+    top: calc(env(safe-area-inset-top, 0px) + 0.75rem);
+    left: 50%;
+    display: block;
+    width: min(calc(100% - 1.5rem), 34rem);
+    padding: 0.9rem;
+    border: 1px solid oklch(0.63 0.16 48 / 0.32);
+    border-radius: 1rem;
+    background: oklch(0.97 0.035 78 / 0.97);
+    box-shadow:
+      0 0.75rem 2rem oklch(0.28 0.06 45 / 0.2),
+      inset 0 1px oklch(1 0 0 / 0.72);
+    color: oklch(0.3 0.05 45);
+    transform: translateX(-50%);
+    animation: notice-arrive 280ms ease-out both;
+    backdrop-filter: blur(0.8rem);
+  }
+
+  .wechat-mobile-notice[hidden] {
+    display: none;
+  }
+
+  .notice-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .notice-copy {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .notice-copy[hidden],
+  button[hidden] {
+    display: none;
+  }
+
+  .notice-copy strong {
+    color: oklch(0.49 0.15 42);
+    font-size: 0.88rem;
+  }
+
+  .notice-copy span {
+    font-size: 0.78rem;
+    line-height: 1.55;
+  }
+
+  .prank-copy strong {
+    color: oklch(0.44 0.18 28);
+  }
+
+  .prank-copy span {
+    color: oklch(0.38 0.13 27);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .notice-progress {
+    height: 0.48rem;
+    margin-top: 0.8rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: oklch(0.79 0.04 28);
+    box-shadow: inset 0 1px 2px oklch(0.3 0.08 28 / 0.22);
+  }
+
+  .notice-progress[hidden] {
+    display: none;
+  }
+
+  .notice-progress span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: repeating-linear-gradient(
+      135deg,
+      oklch(0.58 0.23 27) 0 0.55rem,
+      oklch(0.66 0.24 29) 0.55rem 1.1rem
+    );
+    background-size: 1.55rem 1.55rem;
+    box-shadow: 0 0 0.65rem oklch(0.58 0.23 27 / 0.55);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 3s linear;
+    animation: warning-stripes 420ms linear infinite;
+  }
+
+  .wechat-mobile-notice[data-progress="running"] .notice-progress span {
+    transform: scaleX(1);
+  }
+
+  button {
+    flex: 0 0 auto;
+    padding: 0.55rem 0.72rem;
+    border: 0;
+    border-radius: 0.7rem;
+    background: oklch(0.67 0.2 44);
+    color: oklch(0.98 0.015 76);
+    font: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: oklch(0.61 0.19 44);
+  }
+
+  button:focus-visible {
+    outline: 2px solid oklch(0.42 0.12 265);
+    outline-offset: 2px;
+  }
+
+  @keyframes notice-arrive {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -0.6rem);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+
+  @keyframes warning-stripes {
+    to {
+      background-position: 1.55rem 0;
+    }
+  }
+
+  @media (max-width: 28rem) {
+    .notice-row {
+      align-items: flex-start;
+    }
+  }
+</style>
