@@ -1,0 +1,203 @@
+---
+interface Props {
+  currentVersion: string;
+}
+
+const { currentVersion } = Astro.props;
+---
+
+<aside
+  class="site-update-notice"
+  data-site-update-notice
+  data-current-version={currentVersion}
+  role="status"
+  aria-live="polite"
+  hidden
+>
+  <div>
+    <strong>网站刚刚更新了</strong>
+    <span>刷新后就能看到新内容。</span>
+  </div>
+  <div class="update-actions">
+    <button type="button" class="refresh-button" data-update-refresh>刷新看看</button>
+    <button type="button" class="later-button" data-update-later>稍后</button>
+  </div>
+</aside>
+
+<script>
+  const updateNotice =
+    document.querySelector<HTMLElement>("[data-site-update-notice]");
+  const refreshButton =
+    updateNotice?.querySelector<HTMLButtonElement>("[data-update-refresh]");
+  const laterButton =
+    updateNotice?.querySelector<HTMLButtonElement>("[data-update-later]");
+  const currentVersion = updateNotice?.dataset.currentVersion;
+  const checkInterval = 60_000;
+  let latestVersion: string | null = null;
+  let checking = false;
+  let updateFound = false;
+  let intervalId: number | undefined;
+
+  const isAutoRefreshPage = () => {
+    const path = window.location.pathname.replace(/\/+$/, "") || "/";
+    return path === "/" || path === "/daily";
+  };
+
+  const openLatestVersion = () => {
+    if (!latestVersion) return;
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set("_sitev", latestVersion.slice(0, 12));
+    window.location.replace(nextUrl);
+  };
+
+  const revealUpdate = (version: string) => {
+    if (!updateNotice || updateFound) return;
+    updateFound = true;
+    latestVersion = version;
+    if (intervalId !== undefined) window.clearInterval(intervalId);
+
+    if (isAutoRefreshPage()) {
+      openLatestVersion();
+      return;
+    }
+
+    updateNotice.hidden = false;
+  };
+
+  const checkForUpdate = async () => {
+    if (
+      !updateNotice ||
+      !currentVersion ||
+      currentVersion === "development" ||
+      checking ||
+      updateFound
+    ) {
+      return;
+    }
+
+    checking = true;
+    try {
+      const response = await fetch(`/site-version.json?t=${Date.now()}`, {
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+      });
+      if (!response.ok) return;
+      const payload = (await response.json()) as { version?: string };
+      if (payload.version && payload.version !== currentVersion) {
+        revealUpdate(payload.version);
+      }
+    } catch {
+      // 离线或部署切换期间的短暂请求失败不影响正常阅读。
+    } finally {
+      checking = false;
+    }
+  };
+
+  if (updateNotice && currentVersion && currentVersion !== "development") {
+    intervalId = window.setInterval(checkForUpdate, checkInterval);
+    window.setTimeout(checkForUpdate, 15_000);
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") void checkForUpdate();
+    });
+  }
+
+  refreshButton?.addEventListener("click", openLatestVersion);
+  laterButton?.addEventListener("click", () => {
+    if (updateNotice) updateNotice.hidden = true;
+  });
+</script>
+
+<style>
+  .site-update-notice {
+    position: fixed;
+    z-index: 900;
+    right: clamp(0.8rem, 3vw, 1.5rem);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(0.8rem, 3vw, 1.5rem));
+    display: flex;
+    width: min(calc(100% - 1.6rem), 25rem);
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem;
+    border: 1px solid oklch(0.69 0.13 57 / 0.42);
+    border-radius: 1rem;
+    background: oklch(0.97 0.035 78 / 0.97);
+    box-shadow:
+      0 0.8rem 2.2rem oklch(0.26 0.06 45 / 0.22),
+      inset 0 1px oklch(1 0 0 / 0.72);
+    color: oklch(0.3 0.05 45);
+    animation: update-arrive 260ms ease-out both;
+    backdrop-filter: blur(0.8rem);
+  }
+
+  .site-update-notice[hidden] {
+    display: none;
+  }
+
+  .site-update-notice > div:first-child {
+    display: grid;
+    gap: 0.18rem;
+  }
+
+  strong {
+    color: oklch(0.48 0.15 43);
+    font-size: 0.88rem;
+  }
+
+  span {
+    color: oklch(0.44 0.04 48);
+    font-size: 0.76rem;
+  }
+
+  .update-actions {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.4rem;
+  }
+
+  button {
+    padding: 0.5rem 0.65rem;
+    border: 0;
+    border-radius: 0.65rem;
+    font: inherit;
+    font-size: 0.76rem;
+    cursor: pointer;
+  }
+
+  .refresh-button {
+    background: oklch(0.66 0.2 44);
+    color: oklch(0.98 0.015 76);
+  }
+
+  .later-button {
+    background: transparent;
+    color: oklch(0.43 0.04 48);
+  }
+
+  button:focus-visible {
+    outline: 2px solid oklch(0.42 0.12 265);
+    outline-offset: 2px;
+  }
+
+  @keyframes update-arrive {
+    from {
+      opacity: 0;
+      transform: translateY(0.6rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .site-update-notice {
+      align-items: flex-start;
+    }
+
+    .update-actions {
+      flex-direction: column;
+    }
+  }
+</style>

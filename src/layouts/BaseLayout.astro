@@ -2,6 +2,7 @@
 import "katex/dist/katex.min.css";
 import "../styles/global.css";
 import SiteHeader from "../components/SiteHeader.astro";
+import SiteUpdateNotice from "../components/SiteUpdateNotice.astro";
 import WeChatMobileNotice from "../components/WeChatMobileNotice.astro";
 
 interface Props {
@@ -25,6 +26,7 @@ const bodyClass = [pageClass, lockTheme ? "theme-locked" : ""].filter(Boolean).j
 const pageTitle = title === "Wozonet" ? title : `${title} · Wozonet`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const socialImage = image ? new URL(image, Astro.site) : undefined;
+const siteVersion = import.meta.env.PUBLIC_SITE_VERSION ?? "development";
 ---
 
 <!doctype html>
@@ -61,6 +63,7 @@ const socialImage = image ? new URL(image, Astro.site) : undefined;
   <body class={bodyClass}>
     <a class="skip-link" href="#main-content">跳到正文</a>
     <WeChatMobileNotice />
+    <SiteUpdateNotice currentVersion={siteVersion} />
     <SiteHeader />
     <main id="main-content" class="site-main">
       <slot />
