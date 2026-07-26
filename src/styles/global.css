@@ -1,14 +1,14 @@
 :root {
   color-scheme: dark;
-  --bg: #0b0c10;
-  --bg-soft: #12141a;
-  --surface: rgba(22, 24, 31, 0.76);
-  --surface-solid: #171920;
-  --text: #ececf0;
-  --text-soft: #a9abb5;
-  --line: rgba(255, 255, 255, 0.1);
-  --accent: #a8b8ff;
-  --accent-soft: rgba(168, 184, 255, 0.16);
+  --bg: oklch(0.1551 0.0087 274.28);
+  --bg-soft: oklch(0.1919 0.0126 270.68);
+  --surface: oklch(0.2101 0.0142 272.61 / 0.76);
+  --surface-solid: oklch(0.2145 0.0141 272.63);
+  --text: oklch(0.9442 0.0053 286.3);
+  --text-soft: oklch(0.7427 0.0145 276.98);
+  --line: oklch(1 0 0 / 0.1);
+  --accent: oklch(0.7966 0.1026 274.09);
+  --accent-soft: oklch(0.7966 0.1026 274.09 / 0.16);
   --content: 46rem;
   --shell: 76rem;
   --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", Georgia, serif;
@@ -18,14 +18,14 @@
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #f2f1ed;
-  --bg-soft: #e9e7e0;
-  --surface: rgba(255, 255, 255, 0.75);
-  --surface-solid: #fbfaf7;
-  --text: #202127;
-  --text-soft: #656771;
-  --line: rgba(25, 27, 34, 0.13);
-  --accent-soft: rgba(72, 89, 166, 0.12);
+  --bg: oklch(0.9578 0.0054 95.1);
+  --bg-soft: oklch(0.9276 0.0096 93.57);
+  --surface: oklch(1 0 0 / 0.75);
+  --surface-solid: oklch(0.985 0.0041 91.45);
+  --text: oklch(0.2493 0.0114 278.04);
+  --text-soft: oklch(0.5155 0.0159 276.82);
+  --line: oklch(0.2232 0.014 272.68 / 0.13);
+  --accent-soft: oklch(0.4894 0.1244 271.74 / 0.12);
 }
 
 * {
@@ -43,7 +43,11 @@ body {
   margin: 0;
   overflow-x: hidden;
   background:
-    radial-gradient(circle at 15% -10%, rgba(95, 115, 201, 0.14), transparent 32rem),
+    radial-gradient(
+      circle at 15% -10%,
+      oklch(0.5803 0.1338 271.8 / 0.14),
+      transparent 32rem
+    ),
     var(--bg);
   color: var(--text);
   font-family: var(--sans);
@@ -59,7 +63,7 @@ body::before {
     linear-gradient(90deg, var(--line) 1px, transparent 1px);
   background-size: 4rem 4rem;
   content: "";
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.28), transparent 62%);
+  mask-image: linear-gradient(to bottom, oklch(0 0 0 / 0.28), transparent 62%);
   opacity: 0.16;
   pointer-events: none;
 }
@@ -87,7 +91,7 @@ img {
 
 ::selection {
   background: var(--accent);
-  color: #0b0c10;
+  color: oklch(0.1551 0.0087 274.28);
 }
 
 .shell {

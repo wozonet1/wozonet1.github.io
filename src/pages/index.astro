@@ -124,16 +124,24 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
 
 <style>
   :global(body.home-page) {
-    --home-ink: #31261e;
-    --home-muted: #786657;
-    --home-orange: #ff6a32;
-    --home-yellow: #ffc84b;
-    --home-cream: #fffaf1;
+    --home-ink: oklch(0.2787 0.0219 57.72);
+    --home-muted: oklch(0.5233 0.0325 61.83);
+    --home-orange: oklch(0.703 0.1941 39.49);
+    --home-yellow: oklch(0.76 0.17 78);
+    --home-cream: oklch(0.9865 0.013 82.4);
     color-scheme: only light;
     background:
-      radial-gradient(circle at 8% 8%, rgba(255, 208, 101, 0.25), transparent 27rem),
-      radial-gradient(circle at 92% 22%, rgba(255, 133, 82, 0.14), transparent 31rem),
-      #fffaf1;
+      radial-gradient(
+        circle at 8% 8%,
+        oklch(0.713 0.213 62.92 / 0.7),
+        transparent 27rem
+      ),
+      radial-gradient(
+        circle at 92% 22%,
+        oklch(0.776 0.157 79 / 0.5),
+        transparent 31rem
+      ),
+      var(--home-yellow);
     color: var(--home-ink);
   }
 
@@ -141,13 +149,8 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
     opacity: 0;
   }
 
-  :global(body.home-page .site-header) {
-    border-color: rgba(74, 48, 31, 0.13);
-    background: rgba(255, 250, 241, 0.86);
-  }
-
   :global(body.home-page .site-footer) {
-    border-color: rgba(74, 48, 31, 0.15);
+    border-color: oklch(0.3359 0.0471 53.62 / 0.15);
     color: var(--home-muted);
   }
 
@@ -163,7 +166,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   .kicker,
   .section-index {
     margin: 0 0 1rem;
-    color: #bf4b24;
+    color: oklch(0.5625 0.1581 38.11);
     font-family: var(--mono);
     font-size: 0.7rem;
     font-weight: 700;
@@ -201,7 +204,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
 
   .stack-card,
   .daily-card {
-    border: 1px solid rgba(83, 49, 23, 0.13);
+    border: 1px solid oklch(0.3495 0.0629 56.18 / 0.13);
     border-radius: 1.5rem;
   }
 
@@ -209,17 +212,17 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: #ffd267;
+    background: oklch(0.8823 0.1345 86.55);
     transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 260ms ease;
   }
 
   .stack-second {
-    background: #ffb05f;
+    background: oklch(0.80 0.12 55);
     transform: translate(0.55rem, 0.55rem) rotate(0.25deg);
   }
 
   .stack-third {
-    background: #e8512f;
+    background: oklch(0.67 0.075 285);
     transform: translate(1rem, 1rem) rotate(0.5deg);
   }
 
@@ -227,17 +230,21 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
     min-height: 25rem;
     padding: clamp(1.5rem, 4vw, 2.8rem);
     background:
-      linear-gradient(rgba(255, 125, 58, 0.96), rgba(255, 125, 58, 0.96)),
-      repeating-linear-gradient(0deg, transparent 0 2rem, rgba(90, 35, 15, 0.08) 2rem calc(2rem + 1px)),
-      #ff7d3a;
-    box-shadow: 0 1.2rem 3.4rem rgba(147, 69, 24, 0.16);
+      linear-gradient( oklch(0.63 0.21 38), oklch(0.672 0.21 38)),
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 2rem,
+        oklch(0.3333 0.0868 39.52 / 0.08) 2rem calc(2rem + 1px)
+      ),
+      oklch(0.7299 0.1768 45.14);
+    box-shadow: 0 1.2rem 3.4rem oklch(0.4834 0.1191 46.71 / 0.16);
     transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 260ms ease;
   }
 
   .note-stack:hover .daily-card,
   .note-stack:focus-visible .daily-card {
     transform: translate(-0.45rem, -0.55rem) rotate(-0.35deg);
-    box-shadow: 1.4rem 1.8rem 3.8rem rgba(113, 64, 28, 0.2);
+    box-shadow: 1.4rem 1.8rem 3.8rem oklch(0.4239 0.0842 54.26 / 0.2);
   }
 
   .note-stack:hover .stack-second,
@@ -248,7 +255,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   .note-stack:hover .stack-third,
   .note-stack:focus-visible .stack-third {
     transform: translate(1.55rem, 1.55rem) rotate(2deg);
-    box-shadow: 0.8rem 1.1rem 2rem rgba(60, 76, 125, 0.18);
+    box-shadow: 0.8rem 1.1rem 2rem oklch(0.4268 0.0841 268.97 / 0.18);
   }
 
   .note-stack:focus-visible {
@@ -272,7 +279,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
 
   .card-label {
     margin-bottom: 0.25rem;
-    color: #6f250f;
+    color: oklch(0.3739 0.11 36.58);
     font-size: 0.68rem;
     font-weight: 800;
     letter-spacing: 0.15em;
@@ -280,7 +287,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
 
   .daily-card time,
   .card-number {
-    color: rgba(72, 35, 20, 0.68);
+    color: oklch(0.3034 0.0616 42.19 / 0.68);
     font-family: var(--mono);
     font-size: 0.72rem;
   }
@@ -303,8 +310,8 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   .daily-card footer {
     align-items: end;
     padding-top: 1.2rem;
-    border-top: 1px solid rgba(83, 38, 18, 0.2);
-    color: rgba(72, 35, 20, 0.72);
+    border-top: 1px solid oklch(0.327 0.0739 43.29 / 0.2);
+    color: oklch(0.3034 0.0616 42.19 / 0.72);
     font-size: 0.72rem;
   }
 
@@ -315,7 +322,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
 
   .portrait {
     padding-block: 7rem;
-    border-top: 1px solid rgba(74, 48, 31, 0.14);
+    border-top: 1px solid oklch(0.3359 0.0471 53.62 / 0.14);
   }
 
   .section-intro {
@@ -351,7 +358,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   .info-card {
     min-height: 19rem;
     padding: 2rem;
-    border: 1px solid rgba(74, 48, 31, 0.12);
+    border: 1px solid oklch(0.3359 0.0471 53.62 / 0.12);
     border-radius: 1.4rem;
   }
 
@@ -368,10 +375,10 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
     grid-column: span 7;
   }
 
-  .coral { background: #ff7a51; }
-  .sun { background: #ffd263; }
-  .apricot { background: #ffc09a; }
-  .paper { background: rgba(255, 255, 255, 0.68); }
+  .coral { background: oklch(0.728 0.172 37.74); }
+  .sun { background: oklch(0.8819 0.1377 87.16); }
+  .apricot { background: oklch(0.8562 0.0886 52.28); }
+  .paper { background: oklch(1 0 0 / 0.68); }
 
   .info-icon {
     display: grid;
@@ -379,7 +386,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
     height: 2.7rem;
     place-items: center;
     margin-bottom: 3rem;
-    border: 1px solid rgba(49, 38, 30, 0.25);
+    border: 1px solid oklch(0.2787 0.0219 57.72 / 0.25);
     border-radius: 50%;
     font-size: 1.15rem;
   }
@@ -422,7 +429,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
     grid-template-columns: 5rem 1fr;
     gap: 1rem;
     padding-block: 1rem;
-    border-top: 1px solid rgba(49, 38, 30, 0.14);
+    border-top: 1px solid oklch(0.2787 0.0219 57.72 / 0.14);
   }
 
   .timeline time {
@@ -453,18 +460,18 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
     align-items: center;
     gap: 1.2rem;
     padding-block: 1.5rem;
-    border-top: 1px solid rgba(74, 48, 31, 0.18);
+    border-top: 1px solid oklch(0.3359 0.0471 53.62 / 0.18);
     text-decoration: none;
     transition: padding 180ms ease, color 180ms ease;
   }
 
   .start-links a:last-child {
-    border-bottom: 1px solid rgba(74, 48, 31, 0.18);
+    border-bottom: 1px solid oklch(0.3359 0.0471 53.62 / 0.18);
   }
 
   .start-links a:hover {
     padding-inline: 0.5rem;
-    color: #c74720;
+    color: oklch(0.57 0.1708 36.67);
   }
 
   .start-links span,

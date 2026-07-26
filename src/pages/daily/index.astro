@@ -60,25 +60,27 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
 
 <style>
   :global(body.daily-page) {
+    --daily-ink: oklch(0.2787 0.0219 57.72);
+    --daily-muted: oklch(0.5233 0.0325 61.83);
+    --daily-line: oklch(0.3359 0.0471 53.62);
     color-scheme: only light;
     background:
-      radial-gradient(circle at 8% 4%, rgba(255, 208, 101, 0.22), transparent 28rem),
-      #fffaf1;
-    color: #31261e;
+      radial-gradient(
+        circle at 8% 4%,
+        oklch(0.8783 0.1351 85.57 / 0.22),
+        transparent 28rem
+      ),
+      oklch(0.9865 0.013 82.4);
+    color: var(--daily-ink);
   }
 
   :global(body.daily-page)::before {
     opacity: 0;
   }
 
-  :global(body.daily-page .site-header) {
-    border-color: rgba(74, 48, 31, 0.13);
-    background: rgba(255, 250, 241, 0.86);
-  }
-
   :global(body.daily-page .site-footer) {
-    border-color: rgba(74, 48, 31, 0.15);
-    color: #786657;
+    border-color: oklch(0.3359 0.0471 53.62 / 0.15);
+    color: var(--daily-muted);
   }
 
   .daily-archive {
@@ -94,7 +96,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   }
 
   .archive-header > div > p {
-    color: #bf4b24;
+    color: oklch(0.5625 0.1581 38.11);
     font-family: var(--mono);
     font-size: 0.7rem;
     font-weight: 700;
@@ -111,7 +113,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
 
   .archive-description {
     margin: 0;
-    color: #786657;
+    color: var(--daily-muted);
     font-family: var(--serif);
   }
 
@@ -124,21 +126,21 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   .archive-card {
     min-height: 24rem;
     padding: clamp(1.5rem, 3vw, 2.5rem);
-    border: 1px solid rgba(83, 49, 23, 0.13);
+    border: 1px solid oklch(0.3495 0.0629 56.18 / 0.13);
     border-radius: 1.4rem;
-    background: #fffdf8;
-    box-shadow: 0 0.8rem 2.4rem rgba(113, 64, 28, 0.08);
+    background: oklch(0.9942 0.0069 88.64);
+    box-shadow: 0 0.8rem 2.4rem oklch(0.4239 0.0842 54.26 / 0.08);
   }
 
-  .archive-card:nth-child(4n + 2) { background: #ffd46b; }
-  .archive-card:nth-child(4n + 3) { background: #ffc09a; }
-  .archive-card:nth-child(4n + 4) { background: #ff9877; }
+  .archive-card:nth-child(4n + 2) { background: oklch(0.8867 0.1322 87.23); }
+  .archive-card:nth-child(4n + 3) { background: oklch(0.8562 0.0886 52.28); }
+  .archive-card:nth-child(4n + 4) { background: oklch(0.7799 0.1324 38.51); }
 
   .archive-card > header {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
-    color: #786657;
+    color: var(--daily-muted);
     font-family: var(--mono);
     font-size: 0.7rem;
   }
@@ -166,7 +168,7 @@ const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
     flex-wrap: wrap;
     gap: 0.6rem;
     margin-top: 2rem;
-    color: #786657;
+    color: var(--daily-muted);
     font-size: 0.68rem;
   }
 

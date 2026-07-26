@@ -35,6 +35,7 @@ const socialImage = image ? new URL(image, Astro.site) : undefined;
 >
   <head>
     <meta charset="UTF-8" />
+    <meta name="darkreader-lock" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
@@ -68,7 +69,64 @@ const socialImage = image ? new URL(image, Astro.site) : undefined;
     </footer>
     <script>
       const toggle = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+      const header = document.querySelector<HTMLElement>(".site-header");
       const isThemeLocked = document.documentElement.dataset.themeLocked === "true";
+
+      const colorCanvas = document.createElement("canvas");
+      colorCanvas.width = 1;
+      colorCanvas.height = 1;
+      const colorContext = colorCanvas.getContext("2d", { willReadFrequently: true });
+
+      const resolveCssColor = (color: string) => {
+        if (!colorContext) return null;
+        colorContext.clearRect(0, 0, 1, 1);
+        colorContext.fillStyle = color;
+        colorContext.fillRect(0, 0, 1, 1);
+        const [red, green, blue, alpha] = colorContext.getImageData(0, 0, 1, 1).data;
+        return {
+          red,
+          green,
+          blue,
+          alpha: alpha / 255,
+        };
+      };
+
+      const relativeLuminance = (red: number, green: number, blue: number) => {
+        const linearize = (channel: number) => {
+          const value = channel / 255;
+          return value <= 0.04045
+            ? value / 12.92
+            : ((value + 0.055) / 1.055) ** 2.4;
+        };
+        return (
+          0.2126 * linearize(red) +
+          0.7152 * linearize(green) +
+          0.0722 * linearize(blue)
+        );
+      };
+
+      const syncHeaderAppearance = () => {
+        if (!header) return;
+        const bodyBackground = getComputedStyle(document.body).backgroundColor;
+        const rootBackground = getComputedStyle(document.documentElement).backgroundColor;
+        const parsed = resolveCssColor(bodyBackground) ?? resolveCssColor(rootBackground);
+        if (!parsed) return;
+
+        const root = resolveCssColor(rootBackground) ?? {
+          red: 255,
+          green: 255,
+          blue: 255,
+          alpha: 1,
+        };
+        const red = Math.round(parsed.red * parsed.alpha + root.red * (1 - parsed.alpha));
+        const green = Math.round(parsed.green * parsed.alpha + root.green * (1 - parsed.alpha));
+        const blue = Math.round(parsed.blue * parsed.alpha + root.blue * (1 - parsed.alpha));
+
+        header.style.setProperty("--header-page-bg", bodyBackground);
+        header.dataset.contrast = relativeLuminance(red, green, blue) > 0.42 ? "dark" : "light";
+      };
+
+      syncHeaderAppearance();
       if (isThemeLocked) toggle?.setAttribute("hidden", "");
       toggle?.addEventListener("click", () => {
         if (isThemeLocked) return;
@@ -77,6 +135,7 @@ const socialImage = image ? new URL(image, Astro.site) : undefined;
         root.dataset.theme = next;
         localStorage.setItem("theme", next);
         toggle.setAttribute("aria-label", next === "light" ? "切换到深色模式" : "切换到浅色模式");
+        requestAnimationFrame(syncHeaderAppearance);
       });
     </script>
   </body>

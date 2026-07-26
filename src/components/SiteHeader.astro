@@ -39,12 +39,35 @@ const links = [
 
 <style>
   .site-header {
+    --header-page-bg: var(--bg);
+    --header-text: oklch(0.9596 0.0131 82.4);
+    --header-muted: oklch(0.9596 0.0131 82.4 / 0.66);
+    --header-line: oklch(0.9596 0.0131 82.4 / 0.14);
+    --header-accent: var(--accent);
+    --header-shadow: oklch(0 0 0 / 0.24);
     position: sticky;
     z-index: 30;
     top: 0;
-    border-bottom: 1px solid var(--line);
-    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    border-bottom: 1px solid var(--header-line);
+    background: color-mix(in oklch, var(--header-page-bg) 86%, transparent);
+    box-shadow:
+      0 1px 0 var(--header-line),
+      0 0.7rem 1.5rem -0.65rem var(--header-shadow);
+    color: var(--header-text);
     backdrop-filter: blur(18px);
+    transition:
+      color 180ms ease,
+      border-color 180ms ease,
+      background-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .site-header[data-contrast="dark"] {
+    --header-text: oklch(0.2787 0.0219 57.72);
+    --header-muted: oklch(0.2787 0.0219 57.72 / 0.66);
+    --header-line: oklch(0.2787 0.0219 57.72 / 0.14);
+    --header-accent: oklch(0.5417 0.1578 37.05);
+    --header-shadow: oklch(0.2787 0.0219 57.72 / 0.34);
   }
 
   .nav-shell {
@@ -69,9 +92,11 @@ const links = [
   .brand-mark {
     width: 0.72rem;
     height: 0.72rem;
-    border: 1px solid var(--accent);
+    border: 1px solid var(--header-accent);
     border-radius: 50%;
-    box-shadow: inset 0 0 0 0.2rem var(--bg), inset 0 0 0 0.5rem var(--accent);
+    box-shadow:
+      inset 0 0 0 0.2rem var(--header-page-bg),
+      inset 0 0 0 0.5rem var(--header-accent);
   }
 
   nav {
@@ -82,7 +107,7 @@ const links = [
   nav a {
     position: relative;
     padding-block: 1.35rem;
-    color: var(--text-soft);
+    color: var(--header-muted);
     font-size: 0.78rem;
     text-decoration: none;
   }
@@ -94,14 +119,14 @@ const links = [
     left: 0;
     height: 1px;
     transform: scaleX(0);
-    background: var(--accent);
+    background: var(--header-accent);
     content: "";
     transition: transform 160ms ease;
   }
 
   nav a:hover,
   nav a[aria-current="page"] {
-    color: var(--text);
+    color: var(--header-text);
   }
 
   nav a:hover::after,
@@ -115,10 +140,10 @@ const links = [
     height: 2.25rem;
     place-items: center;
     justify-self: end;
-    border: 1px solid var(--line);
+    border: 1px solid var(--header-line);
     border-radius: 50%;
     background: transparent;
-    color: var(--text);
+    color: var(--header-text);
     cursor: pointer;
   }
 
@@ -143,8 +168,8 @@ const links = [
       z-index: 40;
       justify-content: space-around;
       gap: 0;
-      border-top: 1px solid var(--line);
-      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      border-top: 1px solid var(--header-line);
+      background: color-mix(in oklch, var(--header-page-bg) 92%, transparent);
       backdrop-filter: blur(18px);
     }
 

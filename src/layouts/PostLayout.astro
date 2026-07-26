@@ -69,8 +69,8 @@ const articleStyle = [
     background-image:
       linear-gradient(
         to bottom,
-        rgb(11 12 16 / var(--article-overlay)) 0%,
-        rgb(11 12 16 / calc(var(--article-overlay) + 0.08)) 62%,
+        oklch(0.1551 0.0087 274.28 / var(--article-overlay)) 0%,
+        oklch(0.1551 0.0087 274.28 / calc(var(--article-overlay) + 0.08)) 62%,
         var(--bg) 100%
       ),
       var(--article-background),
@@ -201,7 +201,7 @@ const articleStyle = [
     transform: translateX(-50%);
     border: 1px solid var(--line);
     border-radius: 0.8rem;
-    box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1.5rem 4rem oklch(0 0 0 / 0.3);
   }
 
   .prose code {
