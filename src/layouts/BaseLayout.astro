@@ -7,20 +7,32 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
+  pageClass?: string;
+  defaultTheme?: "dark" | "light";
+  lockTheme?: boolean;
 }
 
 const {
   title = "Wozonet",
   description = "散文、审美分析与仍在形成的项目。",
   image,
+  pageClass = "",
+  defaultTheme = "dark",
+  lockTheme = false,
 } = Astro.props;
+const bodyClass = [pageClass, lockTheme ? "theme-locked" : ""].filter(Boolean).join(" ");
 const pageTitle = title === "Wozonet" ? title : `${title} · Wozonet`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const socialImage = image ? new URL(image, Astro.site) : undefined;
 ---
 
 <!doctype html>
-<html lang="zh-CN" data-theme="dark">
+<html
+  lang="zh-CN"
+  data-theme={defaultTheme}
+  data-default-theme={defaultTheme}
+  data-theme-locked={lockTheme ? "true" : undefined}
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -37,11 +49,14 @@ const socialImage = image ? new URL(image, Astro.site) : undefined;
     <script is:inline>
       (() => {
         const saved = localStorage.getItem("theme");
-        document.documentElement.dataset.theme = saved === "light" ? "light" : "dark";
+        const defaultTheme = document.documentElement.dataset.defaultTheme ?? "dark";
+        const isLocked = document.documentElement.dataset.themeLocked === "true";
+        document.documentElement.dataset.theme =
+          !isLocked && (saved === "light" || saved === "dark") ? saved : defaultTheme;
       })();
     </script>
   </head>
-  <body>
+  <body class={bodyClass}>
     <a class="skip-link" href="#main-content">跳到正文</a>
     <SiteHeader />
     <main id="main-content" class="site-main">
@@ -53,7 +68,10 @@ const socialImage = image ? new URL(image, Astro.site) : undefined;
     </footer>
     <script>
       const toggle = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+      const isThemeLocked = document.documentElement.dataset.themeLocked === "true";
+      if (isThemeLocked) toggle?.setAttribute("hidden", "");
       toggle?.addEventListener("click", () => {
+        if (isThemeLocked) return;
         const root = document.documentElement;
         const next = root.dataset.theme === "light" ? "dark" : "light";
         root.dataset.theme = next;
@@ -65,6 +83,10 @@ const socialImage = image ? new URL(image, Astro.site) : undefined;
 </html>
 
 <style>
+  :global(body.theme-locked .theme-toggle) {
+    display: none;
+  }
+
   .site-footer {
     display: flex;
     justify-content: space-between;

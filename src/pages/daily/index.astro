@@ -1,0 +1,192 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const notes = (await getCollection("notes", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+const renderedNotes = await Promise.all(
+  notes.map(async (note) => ({ note, Content: (await render(note)).Content })),
+);
+const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  weekday: "short",
+});
+---
+
+<BaseLayout
+  title="日常卡片"
+  description="按日期存放的短小感受、观察与生活片段。"
+  pageClass="daily-page"
+  defaultTheme="light"
+  lockTheme
+>
+  <section class="daily-archive shell">
+    <header class="archive-header">
+      <div>
+        <p>DAILY NOTES · {notes.length} CARDS</p>
+        <h1>往日卡片</h1>
+      </div>
+      <p class="archive-description">
+        这里保存短小、即时、不必完整的记录。它们按日期排列，但不要求每天都出现。
+      </p>
+    </header>
+
+    <div class="card-list">
+      {
+        renderedNotes.map(({ note, Content }, index) => (
+          <article class="archive-card" style={`--card-index: ${index}`}>
+            <header>
+              <time datetime={note.data.date.toISOString()}>
+                {dateFormatter.format(note.data.date)}
+              </time>
+              <span>{note.data.weather ?? "日常"}</span>
+            </header>
+            <h2>{note.data.title}</h2>
+            <div class="note-content">
+              <Content />
+            </div>
+            {note.data.tags.length > 0 && (
+              <footer>{note.data.tags.map((tag) => <span>#{tag}</span>)}</footer>
+            )}
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  :global(body.daily-page) {
+    color-scheme: only light;
+    background:
+      radial-gradient(circle at 8% 4%, rgba(255, 208, 101, 0.22), transparent 28rem),
+      #fffaf1;
+    color: #31261e;
+  }
+
+  :global(body.daily-page)::before {
+    opacity: 0;
+  }
+
+  :global(body.daily-page .site-header) {
+    border-color: rgba(74, 48, 31, 0.13);
+    background: rgba(255, 250, 241, 0.86);
+  }
+
+  :global(body.daily-page .site-footer) {
+    border-color: rgba(74, 48, 31, 0.15);
+    color: #786657;
+  }
+
+  .daily-archive {
+    padding-block: 6rem 9rem;
+  }
+
+  .archive-header {
+    display: grid;
+    grid-template-columns: 1fr minmax(18rem, 0.5fr);
+    align-items: end;
+    gap: 3rem;
+    margin-bottom: 5rem;
+  }
+
+  .archive-header > div > p {
+    color: #bf4b24;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    letter-spacing: -0.06em;
+    line-height: 1;
+  }
+
+  .archive-description {
+    margin: 0;
+    color: #786657;
+    font-family: var(--serif);
+  }
+
+  .card-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .archive-card {
+    min-height: 24rem;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border: 1px solid rgba(83, 49, 23, 0.13);
+    border-radius: 1.4rem;
+    background: #fffdf8;
+    box-shadow: 0 0.8rem 2.4rem rgba(113, 64, 28, 0.08);
+  }
+
+  .archive-card:nth-child(4n + 2) { background: #ffd46b; }
+  .archive-card:nth-child(4n + 3) { background: #ffc09a; }
+  .archive-card:nth-child(4n + 4) { background: #ff9877; }
+
+  .archive-card > header {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: #786657;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+  }
+
+  .archive-card h2 {
+    margin: 4rem 0 1rem;
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .note-content {
+    max-width: 32ch;
+    font-family: var(--serif);
+    font-size: clamp(1.12rem, 2vw, 1.45rem);
+    line-height: 1.75;
+  }
+
+  .note-content :global(p) {
+    margin: 0;
+  }
+
+  .archive-card footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 2rem;
+    color: #786657;
+    font-size: 0.68rem;
+  }
+
+  @media (max-width: 44rem) {
+    .daily-archive {
+      padding-block: 4rem 6rem;
+    }
+
+    .archive-header {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .card-list {
+      grid-template-columns: 1fr;
+    }
+
+    .archive-card {
+      min-height: 21rem;
+    }
+  }
+</style>

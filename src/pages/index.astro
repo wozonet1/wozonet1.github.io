@@ -1,260 +1,553 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, render } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import ArticleCard from "../components/ArticleCard.astro";
 
-const posts = (await getCollection("posts", ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+const notes = (await getCollection("notes", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
-const featured = posts.filter((post) => post.data.featured);
-const visiblePosts = featured.length > 0 ? featured.slice(0, 4) : posts.slice(0, 4);
+const latestNote = notes[0];
+const { Content } = latestNote ? await render(latestNote) : { Content: null };
+const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  weekday: "short",
+});
 ---
 
-<BaseLayout>
-  <section class="hero shell">
-    <div class="hero-copy">
-      <p class="eyebrow">Essays · Aesthetics · Projects</p>
-      <h1>把仍在形成的想法，<br /><em>留在可以回看的地方。</em></h1>
-      <p class="hero-description">
-        这里收录长篇随笔、审美分析与项目记录。网站保持安静，只在需要时提供一点运动。
+<BaseLayout
+  title="Wozonet"
+  description="日常片段、长期兴趣，以及仍在形成的文章与项目。"
+  pageClass="home-page"
+  defaultTheme="light"
+  lockTheme
+>
+  <section class="home-hero shell">
+    <div class="welcome">
+      <p class="kicker">A small place on the web</p>
+      <h1>你好，这里是<br /><span>Wozonet 的个人角落。</span></h1>
+      <p class="intro">
+        我在这里留下偶然出现的念头，也整理那些值得花更久时间说明的事。
       </p>
-      <div class="hero-actions">
-        <a class="primary-action" href="/posts/">开始阅读</a>
-        <a href="/about/">关于这里</a>
-      </div>
     </div>
-    <div class="orbit" aria-hidden="true">
-      <span class="orbit-line orbit-one"></span>
-      <span class="orbit-line orbit-two"></span>
-      <span class="orbit-core"></span>
-      <span class="orbit-label label-one">观察</span>
-      <span class="orbit-label label-two">结构</span>
-      <span class="orbit-label label-three">表达</span>
+
+    {
+      latestNote && Content ? (
+        <a class="note-stack" href="/daily/" aria-label="查看今日记录与往日卡片">
+          <span class="stack-card stack-third" aria-hidden="true" />
+          <span class="stack-card stack-second" aria-hidden="true" />
+          <article class="daily-card">
+            <header>
+              <div>
+                <span class="card-label">今天的卡片</span>
+                <time datetime={latestNote.data.date.toISOString()}>
+                  {dateFormatter.format(latestNote.data.date)}
+                </time>
+              </div>
+              <span class="card-number" aria-hidden="true">
+                #{String(notes.length).padStart(3, "0")}
+              </span>
+            </header>
+            <div class="daily-copy">
+              <Content />
+            </div>
+            <footer>
+              <span>{latestNote.data.weather ?? "一些正在发生的事"}</span>
+              <strong>翻看往日卡片 <span aria-hidden="true">↗</span></strong>
+            </footer>
+          </article>
+        </a>
+      ) : (
+        <div class="empty-card">第一张日常卡片正在路上。</div>
+      )
+    }
+  </section>
+
+  <section class="portrait shell" aria-labelledby="about-me">
+    <div class="section-intro">
+      <p class="section-index">01 / ABOUT</p>
+      <h2 id="about-me">一个正在观察、写作，<br />也在动手制作东西的人。</h2>
+      <p>
+        下面的文字目前是原型占位。它们展示的不是一份标准简历，而是访客可以从哪些角度认识你。
+      </p>
+    </div>
+
+    <div class="info-grid">
+      <article class="info-card coral">
+        <span class="info-icon" aria-hidden="true">⌁</span>
+        <p class="info-label">现在的我</p>
+        <h3>技术工作者，也是不太稳定的写作者。</h3>
+        <p>关心工具怎样帮助人表达复杂的经验，同时努力保留那些不能被工具简化的部分。</p>
+      </article>
+
+      <article class="info-card sun">
+        <span class="info-icon" aria-hidden="true">✦</span>
+        <p class="info-label">长期兴趣</p>
+        <h3>文学、审美、人文社科与创作工具。</h3>
+        <ul>
+          <li>作品如何建立自己的感知方式</li>
+          <li>概念怎样进入日常判断</li>
+          <li>技术如何改变创作过程</li>
+        </ul>
+      </article>
+
+      <article class="info-card apricot">
+        <span class="info-icon" aria-hidden="true">↗</span>
+        <p class="info-label">正在做</p>
+        <h3>把零散的想法变成可以继续生长的东西。</h3>
+        <p>整理个人网站，尝试 AI 辅助的游戏剧本创作，也持续记录阅读和项目中的问题。</p>
+      </article>
+
+      <article class="info-card paper">
+        <p class="info-label">一些经历</p>
+        <div class="timeline">
+          <div><time>现在</time><p>在技术与人文兴趣之间搭建自己的工作方式。</p></div>
+          <div><time>此前</time><p>接触机器学习平台、工程实践与复杂项目协作。</p></div>
+          <div><time>一直</time><p>阅读、写作，并试着准确地说明自己的感受。</p></div>
+        </div>
+      </article>
     </div>
   </section>
 
-  <section class="latest shell">
-    <div class="section-heading">
-      <div>
-        <p class="eyebrow">Selected writing</p>
-        <h2>最近的文字</h2>
-      </div>
-      <a href="/posts/">查看全部 <span aria-hidden="true">→</span></a>
-    </div>
-    <div class="article-grid">
-      {visiblePosts.map((post, index) => <ArticleCard post={post} index={index} />)}
-    </div>
-  </section>
-
-  <section class="project-note shell">
-    <p class="eyebrow">In progress</p>
+  <section class="start-here shell">
     <div>
-      <h2>项目也可以是一种思考记录。</h2>
-      <p>未来这里会展示创作工具、研究项目，以及它们为什么被做成现在的样子。</p>
+      <p class="section-index">02 / START HERE</p>
+      <h2>如果想再多了解一点</h2>
     </div>
-    <a href="/about/">了解计划</a>
+    <nav class="start-links" aria-label="推荐入口">
+      <a href="/daily/"><span>01</span><strong>日常片段</strong><em>短小、即时、不必完整</em><b>→</b></a>
+      <a href="/posts/"><span>02</span><strong>长篇文字</strong><em>随笔、分析与较完整的思考</em><b>→</b></a>
+      <a href="/about/"><span>03</span><strong>关于这里</strong><em>网站的计划与写作方式</em><b>→</b></a>
+    </nav>
   </section>
 </BaseLayout>
 
 <style>
-  .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
-    align-items: center;
-    min-height: min(48rem, calc(100vh - 4.25rem));
-    padding-block: 5rem;
+  :global(body.home-page) {
+    --home-ink: #31261e;
+    --home-muted: #786657;
+    --home-orange: #ff6a32;
+    --home-yellow: #ffc84b;
+    --home-cream: #fffaf1;
+    color-scheme: only light;
+    background:
+      radial-gradient(circle at 8% 8%, rgba(255, 208, 101, 0.25), transparent 27rem),
+      radial-gradient(circle at 92% 22%, rgba(255, 133, 82, 0.14), transparent 31rem),
+      #fffaf1;
+    color: var(--home-ink);
   }
 
-  .hero-copy {
-    position: relative;
-    z-index: 2;
+  :global(body.home-page)::before {
+    opacity: 0;
+  }
+
+  :global(body.home-page .site-header) {
+    border-color: rgba(74, 48, 31, 0.13);
+    background: rgba(255, 250, 241, 0.86);
+  }
+
+  :global(body.home-page .site-footer) {
+    border-color: rgba(74, 48, 31, 0.15);
+    color: var(--home-muted);
+  }
+
+  .home-hero {
+    display: grid;
+    grid-template-columns: minmax(15rem, 0.72fr) minmax(30rem, 1.28fr);
+    align-items: center;
+    gap: clamp(3rem, 7vw, 8rem);
+    min-height: min(48rem, calc(100vh - 4.25rem));
+    padding-block: 5.5rem 7rem;
+  }
+
+  .kicker,
+  .section-index {
+    margin: 0 0 1rem;
+    color: #bf4b24;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
   }
 
   h1 {
-    max-width: 14ch;
     margin: 0;
     font-family: var(--serif);
-    font-size: clamp(3rem, 7.2vw, 6.4rem);
-    font-weight: 500;
+    font-size: clamp(2.8rem, 5.3vw, 5.2rem);
+    font-weight: 600;
     letter-spacing: -0.055em;
-    line-height: 1.05;
+    line-height: 1.08;
   }
 
-  h1 em {
-    color: var(--text-soft);
-    font-weight: 400;
+  h1 span {
+    color: var(--home-orange);
   }
 
-  .hero-description {
-    max-width: 34rem;
-    margin: 2rem 0 0;
-    color: var(--text-soft);
+  .intro {
+    max-width: 28rem;
+    margin: 1.75rem 0 0;
+    color: var(--home-muted);
     font-family: var(--serif);
-    font-size: clamp(1rem, 2vw, 1.18rem);
+    font-size: 1.05rem;
   }
 
-  .hero-actions {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-top: 2.5rem;
-    font-size: 0.8rem;
-  }
-
-  .hero-actions a {
-    text-decoration: none;
-  }
-
-  .primary-action {
-    padding: 0.75rem 1.1rem;
-    border-radius: 999px;
-    background: var(--text);
-    color: var(--bg);
-  }
-
-  .orbit {
+  .note-stack {
     position: relative;
-    width: min(32vw, 24rem);
-    aspect-ratio: 1;
-    justify-self: end;
-  }
-
-  .orbit-line,
-  .orbit-core,
-  .orbit-label {
-    position: absolute;
-  }
-
-  .orbit-line {
-    inset: 8%;
-    border: 1px solid var(--line);
-    border-radius: 50%;
-    animation: rotate 24s linear infinite;
-  }
-
-  .orbit-line::after {
-    position: absolute;
-    top: 13%;
-    left: 13%;
-    width: 0.45rem;
-    height: 0.45rem;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 1.5rem var(--accent);
-    content: "";
-  }
-
-  .orbit-two {
-    inset: 24%;
-    border-style: dashed;
-    animation-direction: reverse;
-    animation-duration: 17s;
-  }
-
-  .orbit-core {
-    inset: 42%;
-    border-radius: 50%;
-    background: var(--text);
-    box-shadow: 0 0 5rem var(--accent-soft);
-  }
-
-  .orbit-label {
-    color: var(--text-soft);
-    font-family: var(--mono);
-    font-size: 0.66rem;
-  }
-
-  .label-one {
-    top: 5%;
-    right: 10%;
-  }
-
-  .label-two {
-    bottom: 18%;
-    left: 0;
-  }
-
-  .label-three {
-    right: 2%;
-    bottom: 8%;
-  }
-
-  .latest {
-    padding-block: 6rem 8rem;
-  }
-
-  .section-heading {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 2rem;
-    margin-bottom: 2rem;
-  }
-
-  .section-heading h2,
-  .project-note h2 {
-    margin: 0;
-    font-family: var(--serif);
-    font-size: clamp(2rem, 4vw, 3.4rem);
-    font-weight: 500;
-    letter-spacing: -0.035em;
-  }
-
-  .section-heading > a,
-  .project-note > a {
-    color: var(--text-soft);
-    font-size: 0.76rem;
+    display: block;
+    color: inherit;
     text-decoration: none;
+    isolation: isolate;
   }
 
-  .article-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .stack-card,
+  .daily-card {
+    border: 1px solid rgba(83, 49, 23, 0.13);
+    border-radius: 1.5rem;
+  }
+
+  .stack-card {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: #ffd267;
+    transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 260ms ease;
+  }
+
+  .stack-second {
+    background: #ffb05f;
+    transform: translate(0.55rem, 0.55rem) rotate(0.25deg);
+  }
+
+  .stack-third {
+    background: #e8512f;
+    transform: translate(1rem, 1rem) rotate(0.5deg);
+  }
+
+  .daily-card {
+    min-height: 25rem;
+    padding: clamp(1.5rem, 4vw, 2.8rem);
+    background:
+      linear-gradient(rgba(255, 125, 58, 0.96), rgba(255, 125, 58, 0.96)),
+      repeating-linear-gradient(0deg, transparent 0 2rem, rgba(90, 35, 15, 0.08) 2rem calc(2rem + 1px)),
+      #ff7d3a;
+    box-shadow: 0 1.2rem 3.4rem rgba(147, 69, 24, 0.16);
+    transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 260ms ease;
+  }
+
+  .note-stack:hover .daily-card,
+  .note-stack:focus-visible .daily-card {
+    transform: translate(-0.45rem, -0.55rem) rotate(-0.35deg);
+    box-shadow: 1.4rem 1.8rem 3.8rem rgba(113, 64, 28, 0.2);
+  }
+
+  .note-stack:hover .stack-second,
+  .note-stack:focus-visible .stack-second {
+    transform: translate(0.85rem, 0.9rem) rotate(1.2deg);
+  }
+
+  .note-stack:hover .stack-third,
+  .note-stack:focus-visible .stack-third {
+    transform: translate(1.55rem, 1.55rem) rotate(2deg);
+    box-shadow: 0.8rem 1.1rem 2rem rgba(60, 76, 125, 0.18);
+  }
+
+  .note-stack:focus-visible {
+    border-radius: 1.5rem;
+    outline: 3px solid var(--home-orange);
+    outline-offset: 0.8rem;
+  }
+
+  .daily-card header,
+  .daily-card footer {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
     gap: 1rem;
   }
 
-  .project-note {
+  .card-label,
+  .daily-card time {
+    display: block;
+  }
+
+  .card-label {
+    margin-bottom: 0.25rem;
+    color: #6f250f;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+  }
+
+  .daily-card time,
+  .card-number {
+    color: rgba(72, 35, 20, 0.68);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+  }
+
+  .daily-copy {
     display: grid;
-    grid-template-columns: 10rem 1fr auto;
-    align-items: start;
+    min-height: 14rem;
+    align-content: center;
+    max-width: 28ch;
+    margin: 1.5rem auto;
+    font-family: var(--serif);
+    font-size: clamp(1.25rem, 2.7vw, 1.8rem);
+    line-height: 1.75;
+  }
+
+  .daily-copy :global(p) {
+    margin: 0;
+  }
+
+  .daily-card footer {
+    align-items: end;
+    padding-top: 1.2rem;
+    border-top: 1px solid rgba(83, 38, 18, 0.2);
+    color: rgba(72, 35, 20, 0.72);
+    font-size: 0.72rem;
+  }
+
+  .daily-card footer strong {
+    color: var(--home-ink);
+    font-size: 0.76rem;
+  }
+
+  .portrait {
+    padding-block: 7rem;
+    border-top: 1px solid rgba(74, 48, 31, 0.14);
+  }
+
+  .section-intro {
+    display: grid;
+    grid-template-columns: 10rem minmax(20rem, 1fr) minmax(15rem, 0.55fr);
+    align-items: end;
     gap: 2rem;
-    padding-block: 4rem;
-    border-top: 1px solid var(--line);
+    margin-bottom: 3rem;
   }
 
-  .project-note p:not(.eyebrow) {
-    max-width: 38rem;
-    color: var(--text-soft);
+  .section-intro h2,
+  .start-here h2 {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: clamp(2.1rem, 4vw, 3.8rem);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 1.15;
   }
 
-  @keyframes rotate {
-    to {
-      transform: rotate(360deg);
-    }
+  .section-intro > p:last-child {
+    margin: 0;
+    color: var(--home-muted);
+    font-size: 0.85rem;
   }
 
-  @media (max-width: 48rem) {
-    .hero {
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1rem;
+  }
+
+  .info-card {
+    min-height: 19rem;
+    padding: 2rem;
+    border: 1px solid rgba(74, 48, 31, 0.12);
+    border-radius: 1.4rem;
+  }
+
+  .info-card:nth-child(1),
+  .info-card:nth-child(2) {
+    grid-column: span 6;
+  }
+
+  .info-card:nth-child(3) {
+    grid-column: span 5;
+  }
+
+  .info-card:nth-child(4) {
+    grid-column: span 7;
+  }
+
+  .coral { background: #ff7a51; }
+  .sun { background: #ffd263; }
+  .apricot { background: #ffc09a; }
+  .paper { background: rgba(255, 255, 255, 0.68); }
+
+  .info-icon {
+    display: grid;
+    width: 2.7rem;
+    height: 2.7rem;
+    place-items: center;
+    margin-bottom: 3rem;
+    border: 1px solid rgba(49, 38, 30, 0.25);
+    border-radius: 50%;
+    font-size: 1.15rem;
+  }
+
+  .info-label {
+    margin: 0 0 0.7rem;
+    font-family: var(--mono);
+    font-size: 0.67rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+  }
+
+  .info-card h3 {
+    max-width: 22ch;
+    margin: 0 0 1rem;
+    font-family: var(--serif);
+    font-size: clamp(1.4rem, 2.7vw, 2rem);
+    line-height: 1.28;
+  }
+
+  .info-card > p:last-child,
+  .info-card li {
+    max-width: 44ch;
+    font-size: 0.86rem;
+  }
+
+  .info-card ul {
+    margin: 1.5rem 0 0;
+    padding-left: 1.2rem;
+  }
+
+  .timeline {
+    display: grid;
+    gap: 0;
+    margin-top: 1.2rem;
+  }
+
+  .timeline > div {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: 1rem;
+    padding-block: 1rem;
+    border-top: 1px solid rgba(49, 38, 30, 0.14);
+  }
+
+  .timeline time {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+  }
+
+  .timeline p {
+    margin: 0;
+    font-size: 0.85rem;
+  }
+
+  .start-here {
+    display: grid;
+    grid-template-columns: minmax(15rem, 0.55fr) 1fr;
+    gap: 5rem;
+    padding-block: 7rem 9rem;
+  }
+
+  .start-links {
+    display: grid;
+  }
+
+  .start-links a {
+    display: grid;
+    grid-template-columns: 2rem 1fr 1.25fr auto;
+    align-items: center;
+    gap: 1.2rem;
+    padding-block: 1.5rem;
+    border-top: 1px solid rgba(74, 48, 31, 0.18);
+    text-decoration: none;
+    transition: padding 180ms ease, color 180ms ease;
+  }
+
+  .start-links a:last-child {
+    border-bottom: 1px solid rgba(74, 48, 31, 0.18);
+  }
+
+  .start-links a:hover {
+    padding-inline: 0.5rem;
+    color: #c74720;
+  }
+
+  .start-links span,
+  .start-links em {
+    color: var(--home-muted);
+    font-size: 0.73rem;
+    font-style: normal;
+  }
+
+  .start-links strong {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+  }
+
+  .start-links b {
+    font-size: 1.2rem;
+  }
+
+  @media (max-width: 58rem) {
+    .home-hero {
       grid-template-columns: 1fr;
       min-height: auto;
-      padding-block: 6rem 4rem;
+      padding-top: 4rem;
     }
 
-    .orbit {
-      position: absolute;
-      z-index: 0;
-      top: 7rem;
-      right: -5rem;
-      width: 18rem;
-      opacity: 0.45;
+    .welcome {
+      max-width: 40rem;
     }
 
-    .article-grid {
+    .note-stack {
+      width: calc(100% - 1rem);
+    }
+
+    .section-intro {
       grid-template-columns: 1fr;
     }
 
-    .project-note {
+    .section-intro > p:last-child {
+      max-width: 34rem;
+    }
+
+    .start-here {
       grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+  }
+
+  @media (max-width: 42rem) {
+    .home-hero {
+      gap: 3rem;
+      padding-block: 3.5rem 5.5rem;
+    }
+
+    .daily-card {
+      min-height: 23rem;
+      padding: 1.4rem;
+    }
+
+    .daily-copy {
+      min-height: 13rem;
+      font-size: 1.25rem;
+    }
+
+    .daily-card footer span:first-child {
+      display: none;
+    }
+
+    .info-card,
+    .info-card:nth-child(n) {
+      grid-column: 1 / -1;
+      min-height: auto;
+    }
+
+    .info-icon {
+      margin-bottom: 2rem;
+    }
+
+    .start-links a {
+      grid-template-columns: 1.5rem 1fr auto;
+    }
+
+    .start-links em {
+      display: none;
     }
   }
 </style>

@@ -29,4 +29,15 @@ const posts = defineCollection({
   }),
 });
 
-export const collections = { posts };
+const notes = defineCollection({
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/notes" }),
+  schema: z.object({
+    date: z.coerce.date(),
+    title: z.string().default("今日小记"),
+    weather: z.string().optional(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { posts, notes };

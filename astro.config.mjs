@@ -6,7 +6,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 
 export default defineConfig({
-  site: "https://wozonet1.github.io",
+  site: "https://wozonet.top",
   publicDir: "./astro-public",
   integrations: [mdx(), sitemap()],
   markdown: {
