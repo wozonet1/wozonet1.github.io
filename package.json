@@ -7,11 +7,13 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build",
+    "dev:public": "astro dev",
+    "build": "node scripts/run-public-build.mjs",
+    "build:public": "node scripts/run-public-build.mjs",
     "preview": "astro preview",
     "check": "astro check",
-    "moment": "node scripts/new-moment.mjs",
-    "note": "node scripts/new-daily-note.mjs"
+    "moment:public": "node scripts/new-public-moment.mjs",
+    "note:public": "node scripts/new-public-daily-note.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "7.2.1",

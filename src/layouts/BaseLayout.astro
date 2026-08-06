@@ -12,6 +12,7 @@ interface Props {
   pageClass?: string;
   defaultTheme?: "dark" | "light";
   lockTheme?: boolean;
+  robots?: string;
 }
 
 const {
@@ -21,6 +22,7 @@ const {
   pageClass = "",
   defaultTheme = "dark",
   lockTheme = false,
+  robots,
 } = Astro.props;
 const bodyClass = [pageClass, lockTheme ? "theme-locked" : ""].filter(Boolean).join(" ");
 const pageTitle = title === "Wozonet" ? title : `${title} · Wozonet`;
@@ -42,6 +44,7 @@ const siteVersion = import.meta.env.PUBLIC_SITE_VERSION ?? "development";
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    {robots && <meta name="robots" content={robots} />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
     <title>{pageTitle}</title>
@@ -131,7 +134,27 @@ const siteVersion = import.meta.env.PUBLIC_SITE_VERSION ?? "development";
         header.dataset.contrast = relativeLuminance(red, green, blue) > 0.42 ? "dark" : "light";
       };
 
-      syncHeaderAppearance();
+      const scheduleHeaderAppearanceSync = () => {
+        syncHeaderAppearance();
+        requestAnimationFrame(() => {
+          syncHeaderAppearance();
+          requestAnimationFrame(syncHeaderAppearance);
+        });
+        window.setTimeout(syncHeaderAppearance, 240);
+      };
+
+      scheduleHeaderAppearanceSync();
+      window.addEventListener("load", scheduleHeaderAppearanceSync, { once: true });
+      document.fonts?.ready.then(scheduleHeaderAppearanceSync);
+      document.body.addEventListener("transitionend", (event) => {
+        if (
+          event.target === document.body &&
+          (event.propertyName === "background-color" || event.propertyName === "color")
+        ) {
+          syncHeaderAppearance();
+        }
+      });
+
       if (isThemeLocked) toggle?.setAttribute("hidden", "");
       toggle?.addEventListener("click", () => {
         if (isThemeLocked) return;
@@ -140,7 +163,7 @@ const siteVersion = import.meta.env.PUBLIC_SITE_VERSION ?? "development";
         root.dataset.theme = next;
         localStorage.setItem("theme", next);
         toggle.setAttribute("aria-label", next === "light" ? "切换到深色模式" : "切换到浅色模式");
-        requestAnimationFrame(syncHeaderAppearance);
+        scheduleHeaderAppearanceSync();
       });
     </script>
   </body>

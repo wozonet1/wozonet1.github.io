@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build
-        run: npm run build
+        run: npm run build:public
         env:
           PUBLIC_SITE_VERSION: ${{ github.sha }}
       - name: Upload Pages artifact

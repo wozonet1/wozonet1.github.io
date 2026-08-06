@@ -1,6 +1,8 @@
 # wozonet
 
-一个以写作为中心的个人网站。使用 Astro 构建为纯静态页面，不需要数据库或后台。
+一个以写作为中心的公开个人网站。使用 Astro 构建为纯静态页面，不需要数据库或后台。
+
+这个仓库只负责公开站点代码、公开素材与已经确认可以发布的内容。私人日记、时间记录和私人应用代码均不属于公开构建。
 
 ## 本地运行
 
@@ -48,108 +50,23 @@ appearance:
 - `draft: true` 的文章不会出现在构建结果中。
 - 不需要文章背景图时，删掉 `backgroundImage` 即可。
 
-## 写一条状态
+## 公开状态与随记
 
-运行：
-
-```powershell
-npm run moment
-```
-
-网站会按上海时间创建文件，例如：
-
-```text
-src/content/moments/2026/07/27/14-32-18.md
-```
-
-直接打开这个文件写 Markdown 正文即可，不需要填写日期和时间：
-
-```md
-下午重新整理了这个问题，发现我真正关心的是……
-```
-
-需要天气或标签时，可以选择性添加：
-
-```yaml
----
-weather: 午后 · 晴
-tags:
-  - 日常
----
-```
-
-首页只显示时间最新的一条状态；“日常”页面会自动将同一天的状态收集到同一张横线纸上，
-并为每一天生成 `/daily/YYYY-MM-DD/` 时间线页面。
-
-### PowerShell 快速发布
-
-安装快捷命令后，可以在任意目录直接运行：
+明确准备公开的内容才写入这个仓库：
 
 ```powershell
-moment "下午重新整理了这个问题，发现我真正关心的是……"
+moment-public "这是一条已经确认可以公开的状态。"
+note-new-public
+note-sync-public
 ```
 
-这条命令会按上海时间生成状态文件，只提交这个新文件，然后推送到 GitHub。项目路径保存在：
+这些命令不会把私人目录接入公开构建。`moment-public` 与 `note-new-public` 只创建公开文件，`moment-sync-public` / `note-sync-public` 只创建本地提交；确认提交后再运行 `site-push-public` 推送。
 
-```text
-~\.config\wozonet-site\env.ps1
-```
-
-如果以后移动了仓库，只需要修改其中的 `$env:WOZONET_SITE`。
-
-需要修改刚才发布的状态时：
-
-```powershell
-moment-edit
-```
-
-它会用当前 VS Code 窗口打开时间最新的一条状态。保存修改后运行：
-
-```powershell
-moment-sync
-```
-
-`moment-sync` 只提交并推送今天的状态，不会带上随记、文章或界面代码。
-没有变化时会直接结束。
-
-### 写一则随记
-
-随记比状态更长，用来记录当天发生的事情、处境和心情。运行：
-
-```powershell
-note-new
-```
-
-命令会按上海时间在下面的目录创建空白 Markdown 文件，并立即用 VS Code 打开：
-
-```text
-src/content/daily-notes/YYYY/MM/DD/HH-mm-ss.md
-```
-
-直接写正文即可。随记不会显示成便利贴，而是按照时间直接排在当天的横线记录纸上。
-需要标签时可以选择性添加：
-
-```yaml
----
-tags:
-  - 日常
----
-```
-
-保存后发布今天的随记：
-
-```powershell
-note-sync
-```
-
-`note-sync` 只处理今天的 `daily-notes`，不会带上状态、文章或网站界面代码；
-没有变化时不会提交或推送。
+私人原文、Daylog 和私人应用的使用说明保存在私有应用仓库中；公开仓库不提供私人站点运行入口，也不会读取私人数据目录。
 
 ## Obsidian 写作
 
-可以把 `src/content/posts/` 和 `src/content/moments/` 作为 Obsidian 仓库的一部分，
-或在其他仓库写完后复制进来。图片最好集中保存到 `astro-public/images/文章名/`，
-并在 Markdown 中使用根路径：
+若要公开图片，最好集中保存到 `astro-public/images/文章名/`，并在 Markdown 中使用根路径：
 
 ```md
 ![图片说明](/images/文章名/示例.jpg)
@@ -158,6 +75,8 @@ note-sync
 Obsidian 的 `[[双链]]` 和 `![[嵌入]]` 不是标准 Markdown，发布前需要改成普通链接或图片语法。
 
 ## 发布
+
+只有 `src/content/` 与 `astro-public/` 中的内容可能进入公开构建。公开构建不依赖私有应用或私人数据。
 
 推送到 `master` 后，`.github/workflows/deploy.yml` 会构建并发布 `dist/`。首次启用时，在 GitHub 仓库的 **Settings → Pages → Build and deployment → Source** 中选择 **GitHub Actions**。
 
